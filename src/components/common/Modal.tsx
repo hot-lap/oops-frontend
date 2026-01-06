@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { useModalStore } from "@/hooks/common/useModalStore";
+import { useModalStore } from "@/stores/useModalStore";
 
 export function ModalRenderer() {
   const { currentModal, hideModal } = useModalStore();
