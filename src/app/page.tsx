@@ -1,6 +1,6 @@
 "use client";
 
-import { useModalStore } from "@/hooks/common/useModalStore";
+import { useModalStore } from "@/stores/useModalStore";
 
 // 예제 모달 컴포넌트
 function ExampleModal({
