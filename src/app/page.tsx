@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useHomeTitle } from "@/hooks/useHomeTitle";
+import { useRandomTitle } from "@/hooks/useRandomTitle";
 import { useState } from "react";
 
 export default function Home() {
   const router = useRouter();
-  const { title, subtitle } = useHomeTitle();
+  const { title, subtitle } = useRandomTitle("home");
   const [isHovered, setIsHovered] = useState(false);
 
   const goToPage = () => router.push("/createForm");
