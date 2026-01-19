@@ -3,15 +3,14 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, Suspense, useState } from "react";
 import { queryClient } from "../lib/queryClient";
-import { ClientOnly } from "@/components/common/ClientOnly";
-import { ModalRenderer } from "@/components/common/Modal";
+import { AuthProvider, ClientOnly, ModalRenderer } from "@/components";
 
 export default function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(() => queryClient);
 
   return (
     <QueryClientProvider client={client}>
-      {children}
+      <AuthProvider>{children}</AuthProvider>
       <ClientOnly>
         <Suspense fallback={null}>
           <ModalRenderer />

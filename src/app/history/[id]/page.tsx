@@ -1,35 +1,60 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { notFound } from "next/navigation";
 import EditIcon from "@/assets/icons/edit.svg";
 import TrashIcon from "@/assets/icons/trash.svg";
-import Header from "@/components/common/Header";
+import { Header, AsyncBoundary } from "@/components";
 import { useModalStore } from "@/stores/useModalStore";
+import { useSuspensePost } from "@/hooks/queries/usePosts";
+import { useDeletePost } from "@/hooks/mutations/useDeletePost";
+import { formatPostResponse } from "@/lib/utils/postFormatter";
 import { Tag, DeleteConfirmModal } from "../components";
-import { getRecordById } from "../data";
 
 export default function HistoryDetailPage() {
   const params = useParams();
   const id = Number(params.id);
-  const { showModal } = useModalStore();
 
-  const record = getRecordById(id);
+  return (
+    <div className="flex min-h-screen w-full flex-col bg-gray-50">
+      <AsyncBoundary
+        pendingFallback={<HistoryDetailSkeleton />}
+        rejectedFallback={({ reset }) => <HistoryDetailError onRetry={reset} />}
+      >
+        <HistoryDetailContent postId={id} />
+      </AsyncBoundary>
+    </div>
+  );
+}
+
+// 실제 데이터를 fetch하고 렌더링하는 컴포넌트
+function HistoryDetailContent({ postId }: { postId: number }) {
+  const router = useRouter();
+  const { showModal, hideModal } = useModalStore();
+
+  // Suspense 버전 - data는 항상 존재
+  const { data: postData } = useSuspensePost(postId);
+  const record = formatPostResponse(postData);
+
+  const { mutate: deletePost, isPending } = useDeletePost({
+    onSuccess: () => {
+      hideModal();
+      router.push("/history");
+    },
+  });
 
   const handleDelete = () => {
     showModal({
       component: DeleteConfirmModal,
-      props: {},
+      props: {
+        onConfirm: () => deletePost(postId),
+        isPending,
+      },
     });
   };
 
-  if (!record) {
-    notFound();
-  }
-
   return (
-    <div className="flex min-h-screen w-full flex-col bg-gray-50">
+    <>
       <Header
         rightActions={
           <>
@@ -103,6 +128,40 @@ export default function HistoryDetailPage() {
           )}
         </article>
       </main>
-    </div>
+    </>
+  );
+}
+
+// 로딩 스켈레톤
+function HistoryDetailSkeleton() {
+  return (
+    <>
+      <Header />
+      <main className="flex flex-1 flex-col items-center px-4 pb-8">
+        <div className="flex w-full max-w-[532px] flex-col items-center">
+          <div className="size-20 animate-pulse rounded-full bg-gray-200" />
+          <div className="mt-4 h-6 w-32 animate-pulse rounded bg-gray-200" />
+          <div className="mt-4 min-h-40 w-full animate-pulse rounded-[20px] bg-gray-200" />
+        </div>
+      </main>
+    </>
+  );
+}
+
+// 에러 UI
+function HistoryDetailError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <>
+      <Header />
+      <main className="flex flex-1 flex-col items-center justify-center gap-4 px-4 pb-8">
+        <p className="text-gray-500">기록을 불러오는데 실패했습니다.</p>
+        <button
+          onClick={onRetry}
+          className="rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
+        >
+          다시 시도
+        </button>
+      </main>
+    </>
   );
 }
