@@ -5,6 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLoadingTitle } from "@/hooks/useLoadingTitle";
+import { Calendar } from "@/components/ui/calendar";
 import {
   TYPES,
   REASONS,
@@ -18,6 +19,7 @@ type FormData = {
   types: string[];
   reasons: string[];
   emotions: string[];
+  date: Date | null;
 };
 
 export default function CreateForm() {
@@ -37,9 +39,12 @@ export default function CreateForm() {
       types: [],
       reasons: [],
       emotions: [],
+      date: new Date(),
     },
   });
 
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const selectedDate = useWatch({ control, name: "date" });
   const selectedTypes = useWatch({ control, name: "types" }) ?? [];
   const selectedReasons = useWatch({ control, name: "reasons" }) ?? [];
   const selectedEmotions = useWatch({ control, name: "emotions" }) ?? [];
@@ -47,6 +52,13 @@ export default function CreateForm() {
 
   const currentScoreData = EMOTION_SCORE_MAP[score as 1 | 2 | 3 | 4 | 5];
   const [isSaved, setIsSaved] = useState(false);
+
+  const handleSelectDate = (value: Date | undefined) => {
+    if (value) {
+      setValue("date", value);
+      setIsCalendarOpen(false);
+    }
+  };
 
   const toggleSelect = (field: keyof FormData, value: string) => {
     let current: string[] = [];
@@ -93,8 +105,8 @@ export default function CreateForm() {
             </div>
           </div>
         )}
-        {/* 날짜 */}
-        <div className="flex justify-between items-center h-14">
+        {/* 날짜 선택 영역 */}
+        <div className="flex justify-between items-center h-14 mt-4">
           <button onClick={() => router.back()} className="text-xl">
             <Image
               src="/icons/chevron-left.svg"
@@ -103,25 +115,48 @@ export default function CreateForm() {
               height={24}
             />
           </button>
-          <div>
-            {/* 날짜 */}
-            <div className="flex justify-between gap-2">
-              <div className="flex items-center gap-1">
-                <h2 className="text-md font-semibold">2026년</h2>
-                <button>
-                  <Image
-                    src="/icons/chevron-down.svg"
-                    alt="down"
-                    width={17}
-                    height={17}
-                  />
-                </button>
-              </div>
-              <div></div>
+
+          <div className="flex items-center gap-2 cursor-pointer">
+            <h2 className="text-md font-semibold">
+              {selectedDate
+                ? `${selectedDate.getFullYear()}년 ${
+                    selectedDate.getMonth() + 1
+                  }월 ${selectedDate.getDate()}일`
+                : "날짜 선택"}
+            </h2>
+
+            <button onClick={() => setIsCalendarOpen(true)}>
+              <Image
+                src="/icons/chevron-down.svg"
+                alt="toggle-calendar"
+                width={17}
+                height={17}
+              />
+            </button>
+          </div>
+
+          <div className="w-4"></div>
+        </div>
+
+        {/* 달력 모달 */}
+        {isCalendarOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50"
+            onClick={() => setIsCalendarOpen(false)}
+          >
+            <div
+              className="bg-white p-4 rounded-xl shadow-lg animate-fadeIn z-60"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Calendar
+                mode="single"
+                selected={selectedDate ?? undefined}
+                onSelect={handleSelectDate}
+                className="rounded-lg"
+              />
             </div>
           </div>
-          <div className="w-2"></div>
-        </div>
+        )}
 
         {/* 캐릭터 */}
         <div className="flex justify-center mt-10 mb-4">
