@@ -61,3 +61,12 @@ export interface PostUpdateRequest {
   cause: string;
   feeling: string;
 }
+
+// 게시글 Config 응답
+export interface PostConfig {
+  minImpactIntensity: number;
+  maxImpactIntensity: number;
+  categories: string[];
+  causes: string[];
+  feelings: string[];
+}

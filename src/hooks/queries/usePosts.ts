@@ -3,8 +3,17 @@ import {
   useInfiniteQuery,
   useSuspenseQuery,
   useSuspenseInfiniteQuery,
+  useMutation,
+  useQueryClient,
 } from "@tanstack/react-query";
-import { getWeekPosts, getPosts, getPost } from "@/lib/api/posts";
+import {
+  getWeekPosts,
+  getPosts,
+  getPost,
+  getPostConfig,
+  createPost,
+} from "@/lib/api/posts";
+import type { PostCreateRequest } from "@/types/api/posts";
 
 export const postKeys = {
   all: ["posts"] as const,
@@ -14,6 +23,7 @@ export const postKeys = {
     [...postKeys.lists(), { includeThisWeek }] as const,
   details: () => [...postKeys.all, "detail"] as const,
   detail: (id: number) => [...postKeys.details(), id] as const,
+  config: () => [...postKeys.all, "config"] as const,
 };
 
 // ============================================
@@ -56,6 +66,15 @@ export function useSuspensePost(postId: number) {
   });
 }
 
+// 게시글 Config 조회 (Suspense) - 유형, 원인, 감정 목록
+export function useSuspensePostConfig() {
+  return useSuspenseQuery({
+    queryKey: postKeys.config(),
+    queryFn: getPostConfig,
+    staleTime: 1000 * 60 * 60, // 1시간 - config는 자주 변하지 않음
+  });
+}
+
 // ============================================
 // 일반 버전 (필요시 사용)
 // - Suspense 없이 사용해야 하는 특수 케이스
@@ -94,5 +113,23 @@ export function usePost(postId: number) {
     queryKey: postKeys.detail(postId),
     queryFn: () => getPost(postId),
     enabled: postId > 0,
+  });
+}
+
+// ============================================
+// Mutation
+// ============================================
+
+// 게시글 생성
+export function useCreatePost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: PostCreateRequest) => createPost(data),
+    onSuccess: () => {
+      // 게시글 목록 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: postKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postKeys.weeks() });
+    },
   });
 }

@@ -32,7 +32,9 @@ src/
 │   │   ├── components/       # 페이지 전용 컴포넌트
 │   │   ├── layout.tsx
 │   │   └── page.tsx
-│   ├── createForm/           # 기록 작성 페이지
+│   ├── write/                # 기록 작성 페이지
+│   │   ├── components/       # 페이지 전용 컴포넌트
+│   │   └── page.tsx
 │   ├── layout.tsx            # 루트 레이아웃
 │   ├── page.tsx              # 홈 페이지
 │   ├── providers.tsx         # 전역 Provider 설정
@@ -46,6 +48,7 @@ src/
 │   │   ├── AuthProvider.tsx  # 인증 초기화
 │   │   ├── ClientOnly.tsx
 │   │   ├── Header.tsx
+│   │   ├── LeaveConfirmModal.tsx  # 페이지 이탈 확인 모달
 │   │   └── Modal.tsx
 │   ├── ui/                   # 기본 UI 컴포넌트 (shadcn 스타일)
 │   │   ├── index.ts          # Barrel export
@@ -54,10 +57,9 @@ src/
 │   └── feature/              # 특정 기능 컴포넌트
 │
 ├── hooks/                    # 커스텀 훅
-│   ├── queries/              # React Query 조회 훅
-│   │   └── usePosts.ts
-│   └── mutations/            # React Query 변경 훅
-│       └── useDeletePost.ts
+│   ├── queries/              # React Query 훅 (조회 + 변경)
+│   │   └── usePosts.ts       # 게시글 조회/생성 훅
+│   └── useLoadingTitle.ts    # 로딩 타이틀 훅
 │
 ├── lib/                      # 유틸리티, 설정
 │   ├── api/                  # API 관련

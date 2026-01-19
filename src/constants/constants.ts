@@ -24,33 +24,34 @@ export const EMOTIONS = [
   "후회",
 ] as const;
 
-export const EMOTION_SCORE_MAP = {
-  1: {
+// 영향도 점수별 데이터 (index 0 = score 1, index 4 = score 5)
+export const EMOTION_SCORES = [
+  {
     img: "/icons/emotion1.svg",
     title: "괜찮아요",
     subtitle: "잠깐 신경 쓰였지만, 바로 잊고 다른 일에 집중했어요.",
   },
-  2: {
+  {
     img: "/icons/emotion2.svg",
     title: "신경 쓰여요",
     subtitle: "가끔 생각났지만, 큰 방해 없이 일상생활이 가능했어요.",
   },
-  3: {
+  {
     img: "/icons/emotion3.svg",
     title: "마음에 걸려요",
     subtitle: "하루 종일은 아니지만, 쉽게 넘기긴 어려웠어요.",
   },
-  4: {
+  {
     img: "/icons/emotion4.svg",
     title: "마음이 무거워요",
     subtitle: "그 생각에서 벗어나기 힘들고, 기분이 저조했어요.",
   },
-  5: {
+  {
     img: "/icons/emotion5.svg",
     title: "너무 힘들어요",
     subtitle: "계속 생각나서 다른 일을 아무것도 하지 못했어요.",
   },
-} as const;
+] as const;
 
 // 홈화면 랜덤타이틀
 // 첫 방문용 고정 타이틀/서브타이틀
