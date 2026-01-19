@@ -5,10 +5,12 @@ import type { StaticImageData } from "next/image";
 import EditIcon from "@/assets/icons/edit.svg";
 import TrashIcon from "@/assets/icons/trash.svg";
 import { useModalStore } from "@/stores/useModalStore";
+import { useDeletePost } from "@/hooks/mutations/useDeletePost";
 import Tag from "./Tag";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 
 interface RecordDetailProps {
+  postId: number;
   emoji: string | StaticImageData;
   datetime: string;
   content: string;
@@ -17,18 +19,29 @@ interface RecordDetailProps {
 }
 
 export default function RecordDetail({
+  postId,
   emoji,
   datetime,
   content,
   tags,
   lastModified,
 }: RecordDetailProps) {
-  const { showModal } = useModalStore();
+  const { showModal, hideModal } = useModalStore();
+  const { mutate: deletePost, isPending } = useDeletePost({
+    onSuccess: () => {
+      hideModal();
+    },
+  });
 
   const handleDelete = () => {
     showModal({
       component: DeleteConfirmModal,
-      props: {},
+      props: {
+        onConfirm: () => {
+          deletePost(postId);
+        },
+        isPending,
+      },
     });
   };
 

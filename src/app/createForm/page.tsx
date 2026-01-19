@@ -5,7 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLoadingTitle } from "@/hooks/useLoadingTitle";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components";
 import {
   TYPES,
   REASONS,
