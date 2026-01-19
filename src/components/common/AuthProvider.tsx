@@ -24,7 +24,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   if (!isInitialized || isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-gray-500">로딩 중...</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-100 border-t-gray-600"></div>
       </div>
     );
   }
