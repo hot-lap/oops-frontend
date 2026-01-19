@@ -58,7 +58,7 @@ interface AsyncBoundaryProps {
 function DefaultPendingFallback() {
   return (
     <div className="flex flex-1 items-center justify-center py-8">
-      <p className="text-gray-500">로딩 중...</p>
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900" />
     </div>
   );
 }
