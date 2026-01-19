@@ -10,7 +10,7 @@ export default function Home() {
   const { title, subtitle } = useHomeTitle();
   const [isHovered, setIsHovered] = useState(false);
 
-  const goToPage = () => router.push("/createForm");
+  const goToPage = () => router.push("/write");
 
   return (
     <div className="flex justify-center items-center h-screen">

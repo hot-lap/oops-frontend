@@ -75,7 +75,7 @@ export function ModalRenderer() {
             transition={{ duration: 0.2 }}
           />
           <motion.div
-            className="z-10"
+            className="z-10 pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"

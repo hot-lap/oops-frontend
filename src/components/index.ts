@@ -5,6 +5,7 @@ export {
   AuthProvider,
   ClientOnly,
   Header,
+  LeaveConfirmModal,
   ModalRenderer,
 } from "./common";
 
