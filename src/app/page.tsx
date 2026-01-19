@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useHomeTitle } from "@/hooks/useHomeTitle";
-import { useState } from "react";
+import { useState, Activity } from "react";
 
 export default function Home() {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function Home() {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div className="w-96 lg:w-full min-h-screen bg-stone-50 flex flex-col items-center overflow-hidden">
+      <div className="w-96 w-full min-h-screen bg-stone-50 flex flex-col items-center overflow-hidden">
         {/* Logo Header */}
         <div className="h-14 flex justify-center items-center w-full p-4">
           <Image src="/icons/OopsLogo.svg" alt="logo" width={50} height={24} />
@@ -26,29 +26,32 @@ export default function Home() {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            {isHovered ? (
+            <Activity mode={isHovered ? "visible" : "hidden"}>
               <Image
                 src="/icons/homehover.svg"
                 alt="hover"
                 width={200}
                 height={180}
+                loading="eager"
               />
-            ) : (
+            </Activity>
+            <Activity mode={!isHovered ? "visible" : "hidden"}>
               <Image
                 src="/icons/emotion1.svg"
                 alt="default"
                 width={180}
                 height={180}
+                loading="eager"
               />
-            )}
+            </Activity>
           </div>
 
           {/* Title Text */}
           <div className="self-stretch flex flex-col justify-start items-center gap-2">
-            <h1 className="whitespace-normal break-keep text-center justify-start text-stone-900 text-2xl font-semibold font-['Pretendard'] leading-10">
+            <h1 className="whitespace-normal break-keep text-center justify-start text-stone-900 text-2xl font-semibold  leading-10">
               {title}
             </h1>
-            <p className="self-stretch text-center justify-start text-stone-700 text-base font-medium font-['Pretendard'] leading-6">
+            <p className="self-stretch text-center justify-start text-stone-700 text-base font-medium  leading-6">
               {subtitle}
             </p>
           </div>

@@ -88,17 +88,17 @@ export default function CreateForm() {
   };
 
   return (
-    <div className="flex justify-center items-center font-['Pretendard']">
-      <div className="w-96 lg:w-full bg-stone-50 min-h-screen px-6 lg:px-94">
+    <div className="min-h-screen flex justify-center items-center w-full bg-stone-50 ">
+      <div className="mx-6 w-full max-w-[684px]">
         {/* 로딩 화면 */}
         {isSaved && (
           <div className="flex justify-center items-center">
             <div className="w-96 flex justify-center text-center items-center bg-gray-50 min-h-screen">
               <div className="animate-pulse">
-                <h2 className="text-2xl font-semibold text-stone-900 font-['Pretendard'] leading-10 mb-2">
+                <h2 className="text-2xl font-semibold text-stone-900  leading-10 mb-2">
                   {title}
                 </h2>
-                <p className="text-stone-700 text-base font-medium font-['Pretendard'] leading-6">
+                <p className="text-stone-700 text-base font-medium  leading-6">
                   {subtitle}
                 </p>
               </div>
@@ -196,11 +196,11 @@ export default function CreateForm() {
               영향도
             </div>
             {/* 메인 텍스트 */}
-            <div className="justify-start text-black text-base font-semibold font-['Pretendard'] leading-6 mb-1">
+            <div className="justify-start text-black text-base font-semibold  leading-6 mb-1">
               {currentScoreData.title}
             </div>
             {/* 서브 텍스트 */}
-            <div className="self-stretch justify-start text-stone-500 text-xs font-normal font-['Pretendard'] leading-5 mb-4">
+            <div className="self-stretch justify-start text-stone-500 text-xs font-normal  leading-5 mb-4">
               {currentScoreData.subtitle}
             </div>
             <div>
@@ -224,7 +224,7 @@ export default function CreateForm() {
 
           {/* 유형 */}
           <div className="bg-white p-5 rounded-[20px] outline outline-1 outline-stone-200">
-            <div className="justify-start text-stone-900 text-base font-semibold font-['Pretendard'] leading-6 mb-4">
+            <div className="justify-start text-stone-900 text-base font-semibold  leading-6 mb-4">
               유형
             </div>
             <div className="flex flex-wrap gap-2">
@@ -247,7 +247,7 @@ export default function CreateForm() {
 
           {/* 원인 */}
           <div className="bg-white p-5 rounded-[20px] outline outline-1 outline-stone-200">
-            <div className="justify-start text-stone-900 text-base font-semibold font-['Pretendard'] leading-6 mb-4">
+            <div className="justify-start text-stone-900 text-base font-semibold  leading-6 mb-4">
               원인
             </div>
             <div className="flex flex-wrap gap-2">
@@ -270,7 +270,7 @@ export default function CreateForm() {
 
           {/* 감정 */}
           <div className="bg-white p-5 mb-25 rounded-[20px] outline outline-1 outline-stone-200">
-            <div className="justify-start text-stone-900 text-base font-semibold font-['Pretendard'] leading-6 mb-4">
+            <div className="justify-start text-stone-900 text-base font-semibold  leading-6 mb-4">
               감정
             </div>
             <div className="flex flex-wrap gap-2">
@@ -291,16 +291,18 @@ export default function CreateForm() {
             </div>
           </div>
         </div>
-        {/* 저장 버튼 */}
-        {!isSaved && (
+      </div>
+      {/* 저장 버튼 */}
+      {!isSaved && (
+        <div className="w-full flex justify-center fixed bottom-5 px-6">
           <button
             onClick={handleSubmit(onSubmit)}
-            className="fixed bottom-5 w-84 lg:w-[calc(100%-750px)] mx-auto left-0 right-0 bg-stone-600 text-white py-4 rounded-xl font-semibold"
+            className="w-full max-w-[684px] bg-stone-600 py-4 rounded-xl"
           >
-            저장
+            <span className="text-white font-semibold">저장</span>
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
