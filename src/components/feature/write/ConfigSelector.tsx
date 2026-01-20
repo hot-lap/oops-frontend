@@ -6,9 +6,9 @@ interface ConfigSelectorProps {
   selectedCategories: string[];
   selectedCauses: string[];
   selectedFeelings: string[];
-  onToggleCategory: (value: string) => void;
-  onToggleCause: (value: string) => void;
-  onToggleFeeling: (value: string) => void;
+  onToggleCategory: (value: string, multipleSelectable: boolean) => void;
+  onToggleCause: (value: string, multipleSelectable: boolean) => void;
+  onToggleFeeling: (value: string, multipleSelectable: boolean) => void;
 }
 
 function ChipButton({
@@ -53,12 +53,14 @@ export function ConfigSelector({
           유형
         </div>
         <div className="flex flex-wrap gap-2">
-          {config.categories.map((item) => (
+          {config.category.categories.map((item) => (
             <ChipButton
               key={item}
               label={item}
               selected={selectedCategories.includes(item)}
-              onClick={() => onToggleCategory(item)}
+              onClick={() =>
+                onToggleCategory(item, config.category.multipleSelectable)
+              }
             />
           ))}
         </div>
@@ -70,12 +72,14 @@ export function ConfigSelector({
           원인
         </div>
         <div className="flex flex-wrap gap-2">
-          {config.causes.map((item) => (
+          {config.cause.causes.map((item) => (
             <ChipButton
               key={item}
               label={item}
               selected={selectedCauses.includes(item)}
-              onClick={() => onToggleCause(item)}
+              onClick={() =>
+                onToggleCause(item, config.cause.multipleSelectable)
+              }
             />
           ))}
         </div>
@@ -87,12 +91,14 @@ export function ConfigSelector({
           감정
         </div>
         <div className="flex flex-wrap gap-2">
-          {config.feelings.map((item) => (
+          {config.feeling.feelings.map((item) => (
             <ChipButton
               key={item}
               label={item}
               selected={selectedFeelings.includes(item)}
-              onClick={() => onToggleFeeling(item)}
+              onClick={() =>
+                onToggleFeeling(item, config.feeling.multipleSelectable)
+              }
             />
           ))}
         </div>

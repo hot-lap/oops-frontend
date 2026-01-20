@@ -64,11 +64,27 @@ export interface PostUpdateRequest {
   postedAt?: string; // ISO 8601 date-time
 }
 
+// 게시글 Config - 선택 옵션 타입
+export interface CategoryConfig {
+  multipleSelectable: boolean;
+  categories: string[];
+}
+
+export interface CauseConfig {
+  multipleSelectable: boolean;
+  causes: string[];
+}
+
+export interface FeelingConfig {
+  multipleSelectable: boolean;
+  feelings: string[];
+}
+
 // 게시글 Config 응답
 export interface PostConfig {
   minImpactIntensity: number;
   maxImpactIntensity: number;
-  categories: string[];
-  causes: string[];
-  feelings: string[];
+  category: CategoryConfig;
+  cause: CauseConfig;
+  feeling: FeelingConfig;
 }

@@ -475,9 +475,31 @@ GET /api/v1/posts/configs
   "data": {
     "minImpactIntensity": 1,
     "maxImpactIntensity": 5,
-    "categories": ["string"],
-    "causes": ["string"],
-    "feelings": ["string"]
+    "category": {
+      "multipleSelectable": true,
+      "categories": [
+        "약속/일정",
+        "선택/결정",
+        "말/소통",
+        "기대/결과 불일치",
+        "직접 입력"
+      ]
+    },
+    "cause": {
+      "multipleSelectable": false,
+      "causes": [
+        "미루는 습관",
+        "감정 기복",
+        "체력 부족",
+        "과한 기대",
+        "판단 착오",
+        "준비 부족"
+      ]
+    },
+    "feeling": {
+      "multipleSelectable": true,
+      "feelings": ["답답함", "속상함", "서운함", "짜증", "불안", "후회"]
+    }
   }
 }
 ```
