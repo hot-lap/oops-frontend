@@ -267,10 +267,11 @@ POST /api/v1/posts
 {
   "content": "string", // required, minLength: 1
   "impactIntensity": 1, // required, 1~5
-  "category": "string", // required, minLength: 1
+  "category": "string", // optional
   "customCategory": "string", // optional
-  "cause": "string", // required
-  "feeling": "string" // required
+  "cause": "string", // optional
+  "feeling": "string", // optional
+  "postedAt": "2024-01-01T00:00:00" // optional, ISO 8601
 }
 ```
 
@@ -344,10 +345,11 @@ PUT /api/v1/posts/{postId}
 {
   "content": "string", // required, minLength: 1
   "impactIntensity": 1, // required, 1~5
-  "category": "string", // required, minLength: 1
+  "category": "string", // optional
   "customCategory": "string", // optional
-  "cause": "string", // required
-  "feeling": "string" // required
+  "cause": "string", // optional
+  "feeling": "string", // optional
+  "postedAt": "2024-01-01T00:00:00" // optional, ISO 8601
 }
 ```
 
@@ -423,13 +425,14 @@ GET /api/v1/posts/weeks
 ### 게시글 페이징 조회
 
 ```
-GET /api/v1/posts/posts
+GET /api/v1/posts
 ```
 
 **Query Parameters**
 | 이름 | 타입 | 필수 | 설명 |
 |------|------|------|------|
 | page | int32 | O | 페이지 번호 |
+| size | int32 | O | 페이지 크기 |
 | includeThisWeek | boolean | O | 이번주 게시글 포함 여부 |
 
 **Response**: `200 OK` (내림차순 정렬)
@@ -490,10 +493,10 @@ GET /api/v1/posts/configs
 | id              | int64    | O    | 게시글 ID       |
 | content         | string   | O    | 게시글 내용     |
 | impactIntensity | int32    | O    | 영향 강도 (1~5) |
-| category        | string   | O    | 카테고리        |
+| category        | string   | X    | 카테고리        |
 | customCategory  | string   | X    | 커스텀 카테고리 |
-| cause           | string   | O    | 원인            |
-| feeling         | string   | O    | 감정            |
+| cause           | string   | X    | 원인            |
+| feeling         | string   | X    | 감정            |
 | postedAt        | datetime | O    | 작성 일시       |
 
 ### TokenContext

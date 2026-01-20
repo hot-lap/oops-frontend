@@ -22,14 +22,11 @@ export async function getPosts(
   size: number = 10,
   includeThisWeek: boolean = false,
 ): Promise<PagePostResponse> {
-  const response = await apiClient.get<PagePostResponse>(
-    "/api/v1/posts/posts",
-    {
-      page,
-      size,
-      includeThisWeek,
-    },
-  );
+  const response = await apiClient.get<PagePostResponse>("/api/v1/posts", {
+    page,
+    size,
+    includeThisWeek,
+  });
   return response;
 }
 
