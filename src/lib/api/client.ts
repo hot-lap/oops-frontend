@@ -1,6 +1,6 @@
 import { getAccessToken } from "@/lib/auth/token";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://api.oops.rest";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.oops.rest";
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean>;

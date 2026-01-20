@@ -6,8 +6,8 @@ import EditIcon from "@/assets/icons/edit.svg";
 import TrashIcon from "@/assets/icons/trash.svg";
 import { useModalStore } from "@/stores/useModalStore";
 import { useDeletePost } from "@/hooks/mutations/useDeletePost";
-import Tag from "./Tag";
-import DeleteConfirmModal from "./DeleteConfirmModal";
+import { Tag } from "./Tag";
+import { DeleteConfirmModal } from "./DeleteConfirmModal";
 
 interface RecordDetailProps {
   postId: number;
@@ -18,7 +18,7 @@ interface RecordDetailProps {
   lastModified?: string;
 }
 
-export default function RecordDetail({
+export function RecordDetail({
   postId,
   emoji,
   datetime,

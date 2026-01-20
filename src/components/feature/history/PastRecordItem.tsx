@@ -9,11 +9,7 @@ interface PastRecordItemProps {
   title: string;
 }
 
-export default function PastRecordItem({
-  id,
-  date,
-  title,
-}: PastRecordItemProps) {
+export function PastRecordItem({ id, date, title }: PastRecordItemProps) {
   return (
     <Link href={`/history/${id}`} className="block w-full">
       <article className="flex w-full items-center gap-2.5 rounded-xl border border-gray-100 bg-white py-2.5 pl-4 pr-3 transition-colors hover:bg-gray-50">

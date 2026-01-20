@@ -2,7 +2,7 @@
 
 ## 기본 정보
 
-- **Base URL**: `http://api.oops.rest`
+- **Base URL**: `https://api.oops.rest`
 - **인증**: `X-OOPS-AUTH-TOKEN` 헤더에 토큰 전달
 
 ---

@@ -1,8 +1,10 @@
+import { Skeleton } from "@/components";
+
 function ChipSkeleton({ count }: { count: number }) {
   return (
     <div className="flex flex-wrap gap-2">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="h-10 w-20 rounded-full skeleton-shimmer" />
+        <Skeleton key={i} variant="rounded" className="h-10 w-20" />
       ))}
     </div>
   );

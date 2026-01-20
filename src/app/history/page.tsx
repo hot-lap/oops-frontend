@@ -3,8 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import ChevronDownIcon from "@/assets/icons/chevron-down.svg";
-import { Header, AsyncBoundary } from "@/components";
-import { SummaryCard, RecordDetail } from "./components";
+import { Header, AsyncBoundary, SummaryCard, RecordDetail } from "@/components";
 import {
   useSuspenseWeekPosts,
   useSuspenseInfinitePosts,
