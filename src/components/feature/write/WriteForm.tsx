@@ -119,6 +119,7 @@ export function WriteForm() {
   const toggleSelect = (
     field: "categories" | "causes" | "feelings",
     value: string,
+    multipleSelectable: boolean,
   ) => {
     let current: string[] = [];
 
@@ -127,12 +128,17 @@ export function WriteForm() {
     if (field === "feelings") current = selectedFeelings;
 
     if (current.includes(value)) {
+      // 이미 선택된 항목을 클릭하면 선택 해제
       setValue(
         field,
         current.filter((v) => v !== value),
       );
-    } else {
+    } else if (multipleSelectable) {
+      // 다중 선택 가능하면 추가
       setValue(field, [...current, value]);
+    } else {
+      // 단일 선택만 가능하면 교체
+      setValue(field, [value]);
     }
   };
 
@@ -158,8 +164,8 @@ export function WriteForm() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center w-full bg-stone-50">
-      <div className="mx-6 w-full max-w-[684px]">
+    <div className="min-h-screen flex justify-center w-full bg-stone-50">
+      <div className="mx-6 w-full max-w-[684px] h-full">
         {/* 로딩 화면 */}
         {isSaved && (
           <div className="flex justify-center items-center">
@@ -177,7 +183,7 @@ export function WriteForm() {
         )}
 
         {/* 날짜 선택 영역 */}
-        <div className="flex justify-between items-center h-14 mt-4">
+        <div className="flex justify-between items-center h-14">
           <button onClick={handleBackClick} className="text-xl">
             <Image
               src="/icons/chevron-left.svg"
@@ -304,9 +310,15 @@ export function WriteForm() {
               selectedCategories={selectedCategories}
               selectedCauses={selectedCauses}
               selectedFeelings={selectedFeelings}
-              onToggleCategory={(value) => toggleSelect("categories", value)}
-              onToggleCause={(value) => toggleSelect("causes", value)}
-              onToggleFeeling={(value) => toggleSelect("feelings", value)}
+              onToggleCategory={(value, multipleSelectable) =>
+                toggleSelect("categories", value, multipleSelectable)
+              }
+              onToggleCause={(value, multipleSelectable) =>
+                toggleSelect("causes", value, multipleSelectable)
+              }
+              onToggleFeeling={(value, multipleSelectable) =>
+                toggleSelect("feelings", value, multipleSelectable)
+              }
             />
             {/* <ConfigSelectorSkeleton /> */}
           </AsyncBoundary>
