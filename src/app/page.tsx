@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useHomeTitle } from "@/hooks/useHomeTitle";
 import { useState, Activity } from "react";
+import { AsyncBoundary, Skeleton, RecentPosts } from "@/components";
 
 export default function Home() {
   const router = useRouter();
@@ -13,12 +14,14 @@ export default function Home() {
   const goToPage = () => router.push("/write");
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="w-96 w-full min-h-screen bg-stone-50 flex flex-col items-center overflow-hidden">
+    <div className="flex justify-center items-center min-h-screen bg-stone-50">
+      <div className="w-full max-w-[684px] min-h-screen flex flex-col items-center overflow-hidden">
         {/* Logo Header */}
         <div className="h-14 flex justify-center items-center w-full p-4">
           <Image src="/icons/OopsLogo.svg" alt="logo" width={50} height={24} />
         </div>
+
+        {/* Main Content */}
         <div className="flex flex-col items-center gap-8 mt-14">
           {/* Emotion Image (hover 상태에 따라 변경) */}
           <div
@@ -48,10 +51,10 @@ export default function Home() {
 
           {/* Title Text */}
           <div className="self-stretch flex flex-col justify-start items-center gap-2">
-            <h1 className="whitespace-normal break-keep text-center justify-start text-stone-900 text-2xl font-semibold  leading-10">
+            <h1 className="whitespace-normal break-keep text-center justify-start text-stone-900 text-2xl font-semibold leading-10">
               {title}
             </h1>
-            <p className="self-stretch text-center justify-start text-stone-700 text-base font-medium  leading-6">
+            <p className="self-stretch text-center justify-start text-stone-700 text-base font-medium leading-6">
               {subtitle}
             </p>
           </div>
@@ -65,6 +68,20 @@ export default function Home() {
           >
             기록하기
           </button>
+        </div>
+
+        {/* Recent Posts */}
+        <div className="w-full mt-24">
+          <AsyncBoundary
+            pendingFallback={
+              <div className="w-full flex flex-col gap-3 items-center px-6">
+                <Skeleton className="h-5 w-16" />
+                <Skeleton className="w-full h-[46px] rounded-xl" />
+              </div>
+            }
+          >
+            <RecentPosts />
+          </AsyncBoundary>
         </div>
       </div>
     </div>

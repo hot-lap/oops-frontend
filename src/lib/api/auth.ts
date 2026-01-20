@@ -2,7 +2,7 @@
  * 인증 관련 API 함수
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://api.oops.rest";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.oops.rest";
 
 // ============================================
 // 타입 정의

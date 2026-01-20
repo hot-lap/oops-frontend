@@ -4,12 +4,11 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import EditIcon from "@/assets/icons/edit.svg";
 import TrashIcon from "@/assets/icons/trash.svg";
-import { Header, AsyncBoundary } from "@/components";
+import { Header, AsyncBoundary, Tag, DeleteConfirmModal } from "@/components";
 import { useModalStore } from "@/stores/useModalStore";
 import { useSuspensePost } from "@/hooks/queries/usePosts";
 import { useDeletePost } from "@/hooks/mutations/useDeletePost";
 import { formatPostResponse } from "@/lib/utils/postFormatter";
-import { Tag, DeleteConfirmModal } from "../components";
 
 export default function HistoryDetailPage() {
   const params = useParams();

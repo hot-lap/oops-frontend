@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Tag from "./Tag";
+import { Tag } from "./Tag";
 
 interface RecordCardProps {
   id: number;
@@ -10,7 +10,7 @@ interface RecordCardProps {
   tags: string[];
 }
 
-export default function RecordCard({ id, date, title, tags }: RecordCardProps) {
+export function RecordCard({ id, date, title, tags }: RecordCardProps) {
   return (
     <Link href={`/history/${id}`} className="block w-full">
       <article className="flex w-full flex-col gap-1 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:bg-gray-50">

@@ -6,7 +6,7 @@ interface SummaryCardProps {
   isEmpty?: boolean;
 }
 
-export default function SummaryCard({
+export function SummaryCard({
   recordCount,
   topCategory,
   isEmpty = false,

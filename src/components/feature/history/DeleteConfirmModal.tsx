@@ -5,7 +5,7 @@ interface DeleteConfirmModalProps {
   isPending?: boolean;
 }
 
-export default function DeleteConfirmModal({
+export function DeleteConfirmModal({
   onClose,
   onConfirm,
   isPending = false,

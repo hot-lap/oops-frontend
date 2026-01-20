@@ -29,11 +29,9 @@ src/
 │   │   └── signup/
 │   ├── history/              # 기록 조회 페이지
 │   │   ├── [id]/             # 기록 상세 (동적 라우트)
-│   │   ├── components/       # 페이지 전용 컴포넌트
 │   │   ├── layout.tsx
 │   │   └── page.tsx
 │   ├── write/                # 기록 작성 페이지
-│   │   ├── components/       # 페이지 전용 컴포넌트
 │   │   └── page.tsx
 │   ├── layout.tsx            # 루트 레이아웃
 │   ├── page.tsx              # 홈 페이지
@@ -53,18 +51,36 @@ src/
 │   ├── ui/                   # 기본 UI 컴포넌트 (shadcn 스타일)
 │   │   ├── index.ts          # Barrel export
 │   │   ├── button.tsx
-│   │   └── calendar.tsx
-│   └── feature/              # 특정 기능 컴포넌트
+│   │   ├── calendar.tsx
+│   │   └── skeleton.tsx      # 로딩 스켈레톤
+│   └── feature/              # 도메인별 기능 컴포넌트
+│       ├── index.ts          # Barrel export
+│       ├── RecentPosts.tsx   # 홈 - 최근 기록
+│       ├── history/          # 기록 조회 관련
+│       │   ├── index.ts
+│       │   ├── DeleteConfirmModal.tsx
+│       │   ├── PastRecordItem.tsx
+│       │   ├── RecordCard.tsx
+│       │   ├── RecordDetail.tsx
+│       │   ├── SummaryCard.tsx
+│       │   └── Tag.tsx
+│       └── write/            # 기록 작성 관련
+│           ├── index.ts
+│           ├── ConfigSelector.tsx
+│           ├── ConfigSelectorSkeleton.tsx
+│           └── WriteForm.tsx
 │
 ├── hooks/                    # 커스텀 훅
 │   ├── queries/              # React Query 훅 (조회 + 변경)
-│   │   └── usePosts.ts       # 게시글 조회/생성 훅
+│   │   ├── usePosts.ts       # 게시글 조회/생성 훅
+│   │   └── useHome.ts        # 홈 데이터 훅
 │   └── useLoadingTitle.ts    # 로딩 타이틀 훅
 │
 ├── lib/                      # 유틸리티, 설정
 │   ├── api/                  # API 관련
 │   │   ├── client.ts         # API 클라이언트
 │   │   ├── auth.ts           # 인증 API
+│   │   ├── home.ts           # 홈 API
 │   │   └── posts.ts          # 게시글 API
 │   ├── auth/                 # 인증 유틸리티
 │   │   └── token.ts          # 토큰 관리
@@ -74,7 +90,8 @@ src/
 │
 ├── types/                    # 타입 정의
 │   ├── api/                  # API 응답 타입
-│   │   └── posts.ts
+│   │   ├── posts.ts
+│   │   └── home.ts
 │   └── index.ts              # 공통 타입 (Modal 등)
 │
 ├── stores/                   # 전역 상태 (Zustand)
@@ -172,13 +189,17 @@ function Content() {
 ## 컴포넌트 배치 기준
 
 ```
-2개 이상 페이지에서 사용?
-  ├── Yes → src/components/
-  │         ├── common/   (범용 UI)
-  │         ├── ui/       (기본 UI)
-  │         └── feature/  (비즈니스 로직 포함)
-  └── No  → app/[page]/components/
+src/components/
+├── common/   범용 UI (Header, Modal, AsyncBoundary 등)
+├── ui/       기본 UI (Button, Calendar, Skeleton 등)
+└── feature/  도메인별 기능 컴포넌트
+    ├── history/   기록 조회 관련
+    ├── write/     기록 작성 관련
+    └── *.tsx      공통 feature (RecentPosts 등)
 ```
+
+**모든 feature 컴포넌트는 `src/components/feature/`에 도메인별로 배치합니다.**
+페이지 전용 컴포넌트도 `feature/[domain]/`에 위치시켜 일관된 import 경로를 유지합니다.
 
 ---
 
@@ -266,7 +287,7 @@ NEXT_PUBLIC_API_URL=http://api.oops.rest
 ### 새 페이지 추가
 
 1. `app/[page-name]/page.tsx` 생성
-2. 페이지 전용 컴포넌트는 `app/[page-name]/components/`에 배치
+2. 페이지 관련 컴포넌트는 `src/components/feature/[page-name]/`에 배치
 3. API 데이터가 필요하면 `AsyncBoundary` 패턴 적용
 
 ### 새 API 연동
