@@ -141,9 +141,10 @@ export function WriteForm() {
       {
         content: data.description,
         impactIntensity: data.score,
-        category: data.categories[0] ?? "",
-        cause: data.causes[0] ?? "",
-        feeling: data.feelings[0] ?? "",
+        category: data.categories[0],
+        cause: data.causes[0],
+        feeling: data.feelings[0],
+        postedAt: data.date?.toISOString(),
       },
       {
         onSuccess: () => {

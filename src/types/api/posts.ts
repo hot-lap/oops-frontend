@@ -3,10 +3,10 @@ export interface Post {
   id: number;
   content: string;
   impactIntensity: number;
-  category: string;
+  category?: string;
   customCategory?: string;
-  cause: string;
-  feeling: string;
+  cause?: string;
+  feeling?: string;
   postedAt: string;
 }
 
@@ -46,20 +46,22 @@ export interface ApiResponse<T> {
 export interface PostCreateRequest {
   content: string;
   impactIntensity: number;
-  category: string;
+  category?: string;
   customCategory?: string;
-  cause: string;
-  feeling: string;
+  cause?: string;
+  feeling?: string;
+  postedAt?: string; // ISO 8601 date-time
 }
 
 // 게시글 수정 요청
 export interface PostUpdateRequest {
   content: string;
   impactIntensity: number;
-  category: string;
+  category?: string;
   customCategory?: string;
-  cause: string;
-  feeling: string;
+  cause?: string;
+  feeling?: string;
+  postedAt?: string; // ISO 8601 date-time
 }
 
 // 게시글 Config 응답
