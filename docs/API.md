@@ -267,10 +267,12 @@ POST /api/v1/posts
 {
   "content": "string", // required, minLength: 1
   "impactIntensity": 1, // required, 1~5
-  "category": "string", // optional
-  "customCategory": "string", // optional
+  "categories": [
+    // required
+    { "category": "string", "customCategory": "string" }
+  ],
   "cause": "string", // optional
-  "feeling": "string", // optional
+  "feelings": ["string"], // required
   "postedAt": "2024-01-01T00:00:00" // optional, ISO 8601
 }
 ```
@@ -283,10 +285,9 @@ POST /api/v1/posts
     "id": 0,
     "content": "string",
     "impactIntensity": 1,
-    "category": "string",
-    "customCategory": "string",
+    "categories": [{ "category": "string", "customCategory": "string" }],
     "cause": "string",
-    "feeling": "string",
+    "feelings": ["string"],
     "postedAt": "2024-01-01T00:00:00",
     "createdAt": "2024-01-01T00:00:00",
     "modifiedAt": "2024-01-01T00:00:00"
@@ -315,10 +316,9 @@ GET /api/v1/posts/{postId}
     "id": 0,
     "content": "string",
     "impactIntensity": 1,
-    "category": "string",
-    "customCategory": "string",
+    "categories": [{ "category": "string", "customCategory": "string" }],
     "cause": "string",
-    "feeling": "string",
+    "feelings": ["string"],
     "postedAt": "2024-01-01T00:00:00",
     "createdAt": "2024-01-01T00:00:00",
     "modifiedAt": "2024-01-01T00:00:00"
@@ -345,10 +345,9 @@ PUT /api/v1/posts/{postId}
 {
   "content": "string", // required, minLength: 1
   "impactIntensity": 1, // required, 1~5
-  "category": "string", // optional
-  "customCategory": "string", // optional
+  "categories": [{ "category": "string", "customCategory": "string" }], // required
   "cause": "string", // optional
-  "feeling": "string", // optional
+  "feelings": ["string"], // required
   "postedAt": "2024-01-01T00:00:00" // optional, ISO 8601
 }
 ```
@@ -361,10 +360,9 @@ PUT /api/v1/posts/{postId}
     "id": 0,
     "content": "string",
     "impactIntensity": 1,
-    "category": "string",
-    "customCategory": "string",
+    "categories": [{ "category": "string", "customCategory": "string" }],
     "cause": "string",
-    "feeling": "string",
+    "feelings": ["string"],
     "postedAt": "2024-01-01T00:00:00",
     "createdAt": "2024-01-01T00:00:00",
     "modifiedAt": "2024-01-01T00:00:00"
@@ -405,16 +403,15 @@ GET /api/v1/posts/weeks
         "id": 0,
         "content": "string",
         "impactIntensity": 1,
-        "category": "string",
-        "customCategory": "string",
+        "categories": [{ "category": "string", "customCategory": "string" }],
         "cause": "string",
-        "feeling": "string",
+        "feelings": ["string"],
         "postedAt": "2024-01-01T00:00:00"
       }
     ],
     "summary": {
-      "totalCount": 0,
-      "mostCategory": "string" // optional
+      "category": "string",
+      "categoryCount": 0
     }
   }
 }
@@ -444,10 +441,9 @@ GET /api/v1/posts
       "id": 0,
       "content": "string",
       "impactIntensity": 1,
-      "category": "string",
-      "customCategory": "string",
+      "categories": [{ "category": "string", "customCategory": "string" }],
       "cause": "string",
-      "feeling": "string",
+      "feelings": ["string"],
       "postedAt": "2024-01-01T00:00:00",
       "createdAt": "2024-01-01T00:00:00",
       "modifiedAt": "2024-01-01T00:00:00"
@@ -508,18 +504,31 @@ GET /api/v1/posts/configs
 
 ## 공통 스키마
 
+### CategoryInfo
+
+| 필드           | 타입   | 필수 | 설명            |
+| -------------- | ------ | ---- | --------------- |
+| category       | string | O    | 카테고리        |
+| customCategory | string | X    | 커스텀 카테고리 |
+
 ### Post
 
-| 필드            | 타입     | 필수 | 설명            |
-| --------------- | -------- | ---- | --------------- |
-| id              | int64    | O    | 게시글 ID       |
-| content         | string   | O    | 게시글 내용     |
-| impactIntensity | int32    | O    | 영향 강도 (1~5) |
-| category        | string   | X    | 카테고리        |
-| customCategory  | string   | X    | 커스텀 카테고리 |
-| cause           | string   | X    | 원인            |
-| feeling         | string   | X    | 감정            |
-| postedAt        | datetime | O    | 작성 일시       |
+| 필드            | 타입           | 필수 | 설명            |
+| --------------- | -------------- | ---- | --------------- |
+| id              | int64          | O    | 게시글 ID       |
+| content         | string         | O    | 게시글 내용     |
+| impactIntensity | int32          | O    | 영향 강도 (1~5) |
+| categories      | CategoryInfo[] | O    | 카테고리 목록   |
+| cause           | string         | X    | 원인            |
+| feelings        | string[]       | O    | 감정 목록       |
+| postedAt        | datetime       | O    | 작성 일시       |
+
+### Summary
+
+| 필드          | 타입   | 필수 | 설명               |
+| ------------- | ------ | ---- | ------------------ |
+| category      | string | O    | 가장 많은 카테고리 |
+| categoryCount | int32  | O    | 해당 카테고리 횟수 |
 
 ### TokenContext
 

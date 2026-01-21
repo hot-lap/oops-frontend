@@ -1,12 +1,17 @@
+// 카테고리 정보 타입
+export interface CategoryInfo {
+  category: string;
+  customCategory?: string;
+}
+
 // 게시글 기본 타입
 export interface Post {
   id: number;
   content: string;
   impactIntensity: number;
-  category?: string;
-  customCategory?: string;
+  categories: CategoryInfo[];
   cause?: string;
-  feeling?: string;
+  feelings: string[];
   postedAt: string;
 }
 
@@ -18,8 +23,8 @@ export interface PostResponse extends Post {
 
 // 이번주 게시글 요약 통계
 export interface Summary {
-  totalCount: number;
-  mostCategory?: string;
+  category: string;
+  categoryCount: number;
 }
 
 // 이번주 게시글 및 요약 응답
@@ -46,10 +51,9 @@ export interface ApiResponse<T> {
 export interface PostCreateRequest {
   content: string;
   impactIntensity: number;
-  category?: string;
-  customCategory?: string;
+  categories: CategoryInfo[];
   cause?: string;
-  feeling?: string;
+  feelings: string[];
   postedAt?: string; // ISO 8601 date-time
 }
 
@@ -57,10 +61,9 @@ export interface PostCreateRequest {
 export interface PostUpdateRequest {
   content: string;
   impactIntensity: number;
-  category?: string;
-  customCategory?: string;
+  categories: CategoryInfo[];
   cause?: string;
-  feeling?: string;
+  feelings: string[];
   postedAt?: string; // ISO 8601 date-time
 }
 

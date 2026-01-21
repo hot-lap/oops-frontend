@@ -27,10 +27,17 @@ interface TokenData {
 // 쿠키 유틸리티
 // ============================================
 
-function setCookie(key: string, value: string, days: number = 7): void {
+function setCookie(
+  key: string,
+  value: string,
+  days: number | "permanent" = 7,
+): void {
   if (typeof window === "undefined") return;
+
+  // permanent인 경우 10년으로 설정
+  const expirationDays = days === "permanent" ? 365 * 10 : days;
   const expires = new Date(
-    Date.now() + days * 24 * 60 * 60 * 1000,
+    Date.now() + expirationDays * 24 * 60 * 60 * 1000,
   ).toUTCString();
   document.cookie = `${key}=${value}; expires=${expires}; path=/; SameSite=Lax`;
 }
@@ -87,10 +94,15 @@ export function hasToken(): boolean {
 
 /**
  * 토큰 저장
+ * - Guest: 영구 저장 (브라우저에 계속 유지)
+ * - User: Access 7일, Refresh 30일
  */
 export function saveTokens(data: TokenData): void {
-  setCookie(TOKEN_KEY, data.accessToken, 7);
-  setCookie(USER_TYPE_KEY, data.userType, 7);
+  const isGuestUser = data.userType === "guest";
+  const expiration = isGuestUser ? "permanent" : 7;
+
+  setCookie(TOKEN_KEY, data.accessToken, expiration);
+  setCookie(USER_TYPE_KEY, data.userType, expiration);
 
   if (data.refreshToken) {
     setCookie(REFRESH_TOKEN_KEY, data.refreshToken, 30);
@@ -132,7 +144,10 @@ export function clearTokens(): void {
 
 /**
  * Access 토큰만 업데이트 (토큰 갱신 시)
+ * - Guest: 영구 저장
+ * - User: 7일
  */
 export function updateAccessToken(accessToken: string): void {
-  setCookie(TOKEN_KEY, accessToken, 7);
+  const expiration = isGuest() ? "permanent" : 7;
+  setCookie(TOKEN_KEY, accessToken, expiration);
 }

@@ -40,18 +40,25 @@ function extractTitle(content: string): string {
   return firstLine.slice(0, 50) + "...";
 }
 
-// 태그 생성: category, cause, feeling 조합
+// 태그 생성: categories, cause, feelings 조합
 function createTags(post: Post): string[] {
   const tags: string[] = [];
 
-  if (post.category) {
-    tags.push(post.customCategory || post.category);
+  // categories 배열에서 태그 추출
+  if (post.categories && post.categories.length > 0) {
+    post.categories.forEach((cat) => {
+      tags.push(cat.customCategory || cat.category);
+    });
   }
+
+  // cause 추가
   if (post.cause) {
     tags.push(`#${post.cause}`);
   }
-  if (post.feeling) {
-    tags.push(post.feeling);
+
+  // feelings 배열에서 태그 추출
+  if (post.feelings && post.feelings.length > 0) {
+    tags.push(...post.feelings);
   }
 
   return tags;
