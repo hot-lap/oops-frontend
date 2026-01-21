@@ -147,9 +147,9 @@ export function WriteForm() {
       {
         content: data.description,
         impactIntensity: data.score,
-        category: data.categories[0],
+        categories: data.categories.map((cat) => ({ category: cat })),
         cause: data.causes[0],
-        feeling: data.feelings[0],
+        feelings: data.feelings,
         postedAt: data.date?.toISOString(),
       },
       {

@@ -115,8 +115,8 @@ function HistoryContent() {
           {/* Summary */}
           <div className="mt-2 w-full">
             <SummaryCard
-              recordCount={summary.totalCount}
-              topCategory={summary.mostCategory ?? null}
+              recordCount={records.length}
+              topCategory={summary.category ?? null}
             />
           </div>
 
