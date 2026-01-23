@@ -6,20 +6,25 @@ export interface CategoryInfo {
 }
 
 // 게시글 기본 타입
+// API에 따라 category/categories, feeling/feelings 필드명이 다름
 export interface Post {
   id: number;
   content: string;
   impactIntensity: number;
-  categories: CategoryInfo[];
+  // 이번주 게시글 API: category, 상세 API: categories
+  category?: CategoryInfo[];
+  categories?: CategoryInfo[];
   cause?: string;
-  feelings: string[];
+  // 이번주 게시글 API: feeling, 상세 API: feelings
+  feeling?: string[];
+  feelings?: string[];
   postedAt: string;
+  lastModifiedAt?: string | null; // 수정된 적 없으면 null
 }
 
-// 게시글 상세 응답 타입 (createdAt, modifiedAt 포함)
+// 게시글 상세 응답 타입
 export interface PostResponse extends Post {
-  createdAt: string;
-  modifiedAt: string;
+  lastModifiedAt: string | null;
 }
 
 // 이번주 게시글 요약 통계

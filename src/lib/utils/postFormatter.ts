@@ -1,4 +1,4 @@
-import { format, parseISO } from "date-fns";
+import { format, parseISO, isValid } from "date-fns";
 import { ko } from "date-fns/locale";
 import type { Post, PostResponse } from "@/types/api/posts";
 import { EMOTION_SCORES } from "@/constants/constants";
@@ -25,15 +25,32 @@ function getEmotionEmoji(impactIntensity: number): string {
   return EMOTION_SCORES[index].img;
 }
 
+// ISO 문자열을 안전하게 파싱
+function safeParseDateString(dateString: string): Date {
+  if (!dateString) {
+    return new Date();
+  }
+
+  // date-fns의 parseISO는 ISO 8601 형식 (타임존 오프셋 포함)을 올바르게 파싱
+  const date = parseISO(dateString);
+
+  if (!isValid(date)) {
+    console.warn("Invalid date string:", dateString);
+    return new Date();
+  }
+
+  return date;
+}
+
 // 날짜 포맷팅: "12월 18일 (목)"
 function formatDate(dateString: string): string {
-  const date = parseISO(dateString);
+  const date = safeParseDateString(dateString);
   return format(date, "M월 d일 (E)", { locale: ko });
 }
 
 // 날짜시간 포맷팅: "2025.12.18 (목) 23:09"
 function formatDateTime(dateString: string): string {
-  const date = parseISO(dateString);
+  const date = safeParseDateString(dateString);
   return format(date, "yyyy.MM.dd (E) HH:mm", { locale: ko });
 }
 
@@ -50,9 +67,10 @@ function extractTitle(content: string): string {
 function createTags(post: Post): string[] {
   const tags: string[] = [];
 
-  // categories 배열에서 태그 추출
-  if (post.categories && post.categories.length > 0) {
-    post.categories.forEach((cat) => {
+  // categories 배열에서 태그 추출 (category 또는 categories 필드 지원)
+  const categories = post.categories || post.category || [];
+  if (categories.length > 0) {
+    categories.forEach((cat) => {
       if (cat.customCategory) {
         // customCategory가 있으면 '#' 붙여서 표시
         tags.push(`#${cat.customCategory}`);
@@ -67,9 +85,10 @@ function createTags(post: Post): string[] {
     tags.push(post.cause);
   }
 
-  // feelings 배열에서 태그 추출
-  if (post.feelings && post.feelings.length > 0) {
-    tags.push(...post.feelings);
+  // feelings 배열에서 태그 추출 (feeling 또는 feelings 필드 지원)
+  const feelings = post.feelings || post.feeling || [];
+  if (feelings.length > 0) {
+    tags.push(...feelings);
   }
 
   return tags;
@@ -86,15 +105,16 @@ export function formatPost(post: Post): FormattedPost {
     tags: createTags(post),
     emoji: getEmotionEmoji(post.impactIntensity),
     impactIntensity: post.impactIntensity,
+    // lastModifiedAt이 있으면 표시
+    lastModified: post.lastModifiedAt
+      ? formatDateTime(post.lastModifiedAt)
+      : undefined,
   };
 }
 
-// PostResponse를 UI용 FormattedPost로 변환 (lastModified 포함)
+// PostResponse를 UI용 FormattedPost로 변환 (Post와 동일하게 처리)
 export function formatPostResponse(post: PostResponse): FormattedPost {
-  return {
-    ...formatPost(post),
-    lastModified: formatDateTime(post.modifiedAt),
-  };
+  return formatPost(post);
 }
 
 // Post 배열을 FormattedPost 배열로 변환

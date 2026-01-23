@@ -47,14 +47,18 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
       ? {
           description: initialData.content,
           score: initialData.impactIntensity,
-          categories: initialData.categories
+          categories: (initialData.categories || initialData.category || [])
             .filter((c) => c.category && !c.customCategory)
-            .map((c) => c.category),
-          customCategories: initialData.categories
+            .map((c) => c.category) as string[],
+          customCategories: (
+            initialData.categories ||
+            initialData.category ||
+            []
+          )
             .filter((c) => c.customCategory)
             .map((c) => c.customCategory as string),
           causes: initialData.cause ? [initialData.cause] : [],
-          feelings: initialData.feelings,
+          feelings: initialData.feelings || initialData.feeling || [],
           date: new Date(initialData.postedAt),
         }
       : {
@@ -195,7 +199,7 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
       categories: allCategories,
       cause: data.causes[0],
       feelings: data.feelings,
-      postedAt: data.date?.toISOString(),
+      // postedAt: data.date?.toISOString(),
     };
 
     const onSuccess = () => {
@@ -265,6 +269,7 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
                 mode="single"
                 selected={selectedDate ?? undefined}
                 onSelect={handleSelectDate}
+                disabled={{ after: new Date() }}
                 className="rounded-lg"
               />
             </div>

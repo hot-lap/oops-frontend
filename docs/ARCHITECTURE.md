@@ -269,15 +269,31 @@ import { LocalComponent } from "./components";
 
 ## 환경 변수
 
-| 변수                  | 설명         | 기본값                 |
-| --------------------- | ------------ | ---------------------- |
-| `NEXT_PUBLIC_API_URL` | API 서버 URL | `http://api.oops.rest` |
+| 변수                              | 설명                      | 예시                                         |
+| --------------------------------- | ------------------------- | -------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`             | API 서버 URL              | `https://api.oops.rest`                      |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID`    | Google OAuth Client ID    | `xxxxx.apps.googleusercontent.com`           |
+| `NEXT_PUBLIC_GOOGLE_REDIRECT_URI` | Google OAuth Redirect URI | `http://localhost:3000/auth/google/callback` |
 
-`.env.local` 예시:
+### 로컬 개발 환경 (`.env`)
 
 ```
-NEXT_PUBLIC_API_URL=http://api.oops.rest
+NEXT_PUBLIC_API_URL=https://api.oops.rest
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
+NEXT_PUBLIC_GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 ```
+
+### Vercel 배포 환경
+
+Vercel Dashboard > Project Settings > Environment Variables에서 설정:
+
+```
+NEXT_PUBLIC_API_URL=https://api.oops.rest
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
+NEXT_PUBLIC_GOOGLE_REDIRECT_URI=https://oops-frontend.vercel.app/auth/google/callback
+```
+
+**중요:** Google Cloud Console에서도 해당 Redirect URI를 등록해야 합니다.
 
 ---
 
