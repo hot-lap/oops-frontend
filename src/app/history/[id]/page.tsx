@@ -1,10 +1,14 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import EditIcon from "@/assets/icons/edit.svg";
 import TrashIcon from "@/assets/icons/trash.svg";
-import { Header, AsyncBoundary, Tag, DeleteConfirmModal } from "@/components";
+import {
+  Header,
+  AsyncBoundary,
+  DeleteConfirmModal,
+  RecordContent,
+} from "@/components";
 import { useModalStore } from "@/stores/useModalStore";
 import { useSuspensePost } from "@/hooks/queries/usePosts";
 import { useDeletePost } from "@/hooks/mutations/useDeletePost";
@@ -90,51 +94,13 @@ function HistoryDetailContent({ postId }: { postId: number }) {
 
       <main className="flex flex-1 flex-col items-center px-4 pb-8">
         <article className="flex w-full max-w-[532px] flex-col items-center">
-          {/* Emoji */}
-          <figure className="relative size-20 overflow-hidden rounded-full">
-            <Image
-              src={record.emoji}
-              alt="기록 이모지"
-              fill
-              className="object-cover"
-              unoptimized
-            />
-          </figure>
-
-          {/* Date as title */}
-          <h1 className="mt-4 text-center text-[15px] font-semibold leading-[1.6] text-gray-900">
-            <time>{record.date}</time>
-          </h1>
-
-          {/* Content */}
-          <blockquote className="mt-4 min-h-40 w-full rounded-[20px] border border-gray-200 bg-white p-5">
-            <p className="whitespace-pre-wrap text-[15px] font-medium leading-[1.6] text-gray-700">
-              {record.content}
-            </p>
-          </blockquote>
-
-          {/* Tags */}
-          {record.tags.length > 0 && (
-            <ul
-              className="mt-4 flex w-full flex-wrap gap-2"
-              aria-label="태그 목록"
-            >
-              {record.tags.map((tag, index) => (
-                <li key={index}>
-                  <Tag label={tag} />
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {/* Last Modified */}
-          {record.lastModified && (
-            <footer className="mt-4 w-full">
-              <p className="text-xs leading-[1.6] text-gray-500">
-                최종 수정: <time>{record.lastModified}</time>
-              </p>
-            </footer>
-          )}
+          <RecordContent
+            emoji={record.emoji}
+            datetime={record.datetime}
+            content={record.content}
+            tags={record.tags}
+            lastModified={record.lastModified}
+          />
         </article>
       </main>
     </>

@@ -26,6 +26,7 @@ export {
   DeleteConfirmModal,
   PastRecordItem,
   RecordCard,
+  RecordContent,
   RecordDetail,
   SummaryCard,
   Tag,

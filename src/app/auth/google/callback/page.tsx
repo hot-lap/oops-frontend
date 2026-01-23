@@ -30,7 +30,13 @@ export default function GoogleCallbackPage() {
 
       try {
         // OAuth 회원가입/로그인 요청
-        const response = await oauthSignup("google", code);
+        const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI;
+        if (!redirectUri) {
+          setError("Redirect URI가 설정되지 않았습니다.");
+          return;
+        }
+
+        const response = await oauthSignup("google", code, redirectUri);
 
         // 기존 Guest 토큰 삭제 후 User 토큰 저장
         clearTokens();

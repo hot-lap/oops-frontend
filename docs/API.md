@@ -78,7 +78,8 @@ POST /api/v1/oauth/{provider}/signup
 
 ```json
 {
-  "authorizationCode": "string" // required, minLength: 1
+  "authorizationCode": "string", // required, minLength: 1
+  "redirectUri": "string" // required, FE에서 사용한 redirect URI
 }
 ```
 
@@ -289,8 +290,7 @@ POST /api/v1/posts
     "cause": "string",
     "feelings": ["string"],
     "postedAt": "2024-01-01T00:00:00",
-    "createdAt": "2024-01-01T00:00:00",
-    "modifiedAt": "2024-01-01T00:00:00"
+    "lastModifiedAt": "2024-01-01T00:00:00" // 또는 null (수정된 적 없으면)
   }
 }
 ```
@@ -320,8 +320,7 @@ GET /api/v1/posts/{postId}
     "cause": "string",
     "feelings": ["string"],
     "postedAt": "2024-01-01T00:00:00",
-    "createdAt": "2024-01-01T00:00:00",
-    "modifiedAt": "2024-01-01T00:00:00"
+    "lastModifiedAt": "2024-01-01T00:00:00" // 또는 null (수정된 적 없으면)
   }
 }
 ```
@@ -364,8 +363,7 @@ PUT /api/v1/posts/{postId}
     "cause": "string",
     "feelings": ["string"],
     "postedAt": "2024-01-01T00:00:00",
-    "createdAt": "2024-01-01T00:00:00",
-    "modifiedAt": "2024-01-01T00:00:00"
+    "lastModifiedAt": "2024-01-01T00:00:00" // 또는 null (수정된 적 없으면)
   }
 }
 ```
@@ -395,6 +393,9 @@ GET /api/v1/posts/weeks
 
 **Response**: `200 OK`
 
+> **Note**: 이 API는 `category`(단수), `feeling`(단수) 필드를 사용합니다.
+> 상세 조회/생성/수정 API는 `categories`(복수), `feelings`(복수) 필드를 사용합니다.
+
 ```json
 {
   "data": {
@@ -403,10 +404,11 @@ GET /api/v1/posts/weeks
         "id": 0,
         "content": "string",
         "impactIntensity": 1,
-        "categories": [{ "category": "string", "customCategory": "string" }],
+        "category": [{ "category": "string", "customCategory": "string" }],
         "cause": "string",
-        "feelings": ["string"],
-        "postedAt": "2024-01-01T00:00:00"
+        "feeling": ["string"],
+        "postedAt": "2024-01-01T00:00:00+09:00",
+        "lastModifiedAt": "2024-01-01T00:00:00+09:00"
       }
     ],
     "summary": {
@@ -445,8 +447,7 @@ GET /api/v1/posts
       "cause": "string",
       "feelings": ["string"],
       "postedAt": "2024-01-01T00:00:00",
-      "createdAt": "2024-01-01T00:00:00",
-      "modifiedAt": "2024-01-01T00:00:00"
+      "lastModifiedAt": "2024-01-01T00:00:00" // 또는 null (수정된 적 없으면)
     }
   ],
   "page": 0,
@@ -513,15 +514,19 @@ GET /api/v1/posts/configs
 
 ### Post
 
-| 필드            | 타입           | 필수 | 설명            |
-| --------------- | -------------- | ---- | --------------- |
-| id              | int64          | O    | 게시글 ID       |
-| content         | string         | O    | 게시글 내용     |
-| impactIntensity | int32          | O    | 영향 강도 (1~5) |
-| categories      | CategoryInfo[] | O    | 카테고리 목록   |
-| cause           | string         | X    | 원인            |
-| feelings        | string[]       | O    | 감정 목록       |
-| postedAt        | datetime       | O    | 작성 일시       |
+| 필드            | 타입           | 필수 | 설명                              |
+| --------------- | -------------- | ---- | --------------------------------- |
+| id              | int64          | O    | 게시글 ID                         |
+| content         | string         | O    | 게시글 내용                       |
+| impactIntensity | int32          | O    | 영향 강도 (1~5)                   |
+| categories      | CategoryInfo[] | O    | 카테고리 목록                     |
+| cause           | string         | X    | 원인                              |
+| feelings        | string[]       | O    | 감정 목록                         |
+| postedAt        | datetime       | O    | 작성 일시 (ISO 8601, 타임존 포함) |
+| lastModifiedAt  | datetime       | X    | 최종 수정 일시 (수정 시에만 존재) |
+
+> **Note**: 이번주 게시글 조회 API(`/posts/weeks`)는 `category`, `feeling` (단수형)을 사용합니다.
+> 상세 조회/생성/수정 API는 `categories`, `feelings` (복수형)을 사용합니다.
 
 ### Summary
 
