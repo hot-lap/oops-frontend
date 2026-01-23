@@ -6,6 +6,7 @@ import type {
   PagePostResponse,
   PostConfig,
   PostCreateRequest,
+  PostUpdateRequest,
 } from "@/types/api/posts";
 
 // 이번주 게시글 및 요약 통계 조회
@@ -57,6 +58,18 @@ export async function createPost(
 ): Promise<PostResponse> {
   const response = await apiClient.post<ApiResponse<PostResponse>>(
     "/api/v1/posts",
+    data,
+  );
+  return response.data;
+}
+
+// 게시글 수정
+export async function updatePost(
+  postId: number,
+  data: PostUpdateRequest,
+): Promise<PostResponse> {
+  const response = await apiClient.put<ApiResponse<PostResponse>>(
+    `/api/v1/posts/${postId}`,
     data,
   );
   return response.data;

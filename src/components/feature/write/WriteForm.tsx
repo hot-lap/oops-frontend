@@ -4,13 +4,14 @@ import { useForm, useWatch } from "react-hook-form";
 import { useState, useEffect, useCallback, Activity } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useLoadingTitle } from "@/hooks/useLoadingTitle";
 import { Calendar, AsyncBoundary, LeaveConfirmModal } from "@/components";
 import { EMOTION_SCORES } from "@/constants/constants";
 import { useModalStore } from "@/stores/useModalStore";
 import { useCreatePost } from "@/hooks/queries/usePosts";
+import { useUpdatePost } from "@/hooks/mutations/useUpdatePost";
 import { ConfigSelector } from "./ConfigSelector";
 import { ConfigSelectorSkeleton } from "./ConfigSelectorSkeleton";
+import type { PostResponse } from "@/types/api/posts";
 
 type FormData = {
   description: string;
@@ -21,11 +22,18 @@ type FormData = {
   date: Date | null;
 };
 
-export function WriteForm() {
+interface WriteFormProps {
+  postId?: number;
+  initialData?: PostResponse;
+}
+
+export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
   const router = useRouter();
-  const { title, subtitle } = useLoadingTitle();
   const { showModal, hideModal } = useModalStore();
   const createPostMutation = useCreatePost();
+  const updatePostMutation = useUpdatePost();
+
+  const isEditMode = !!postId && !!initialData;
 
   const {
     register,
@@ -34,14 +42,23 @@ export function WriteForm() {
     control,
     formState: { errors, isDirty },
   } = useForm<FormData>({
-    defaultValues: {
-      description: "",
-      score: 3,
-      categories: [],
-      causes: [],
-      feelings: [],
-      date: new Date(),
-    },
+    defaultValues: isEditMode
+      ? {
+          description: initialData.content,
+          score: initialData.impactIntensity,
+          categories: initialData.categories.map((c) => c.category),
+          causes: initialData.cause ? [initialData.cause] : [],
+          feelings: initialData.feelings,
+          date: new Date(initialData.postedAt),
+        }
+      : {
+          description: "",
+          score: 3,
+          categories: [],
+          causes: [],
+          feelings: [],
+          date: new Date(),
+        },
   });
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -52,7 +69,6 @@ export function WriteForm() {
   const score = useWatch({ control, name: "score" });
 
   const currentScoreData = EMOTION_SCORES[score - 1];
-  const [isSaved, setIsSaved] = useState(false);
 
   // 페이지 이탈 처리
   const leavePage = useCallback(() => {
@@ -85,9 +101,6 @@ export function WriteForm() {
       // 모달 관련 상태면 무시
       if (event.state?.isModal) return;
 
-      // 저장 완료 상태면 그냥 이동
-      if (isSaved) return;
-
       // 뒤로가기 방지를 위해 다시 히스토리 추가
       window.history.pushState({ preventBack: true }, "", window.location.href);
       showLeaveConfirmModal();
@@ -97,12 +110,12 @@ export function WriteForm() {
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [isDirty, isSaved, showLeaveConfirmModal]);
+  }, [isDirty, showLeaveConfirmModal]);
 
   // 헤더 뒤로가기 버튼 클릭 핸들러
   const handleBackClick = () => {
-    // 저장 완료 또는 폼이 수정되지 않았으면 바로 이동
-    if (isSaved || !isDirty) {
+    // 폼이 수정되지 않았으면 바로 이동
+    if (!isDirty) {
       leavePage();
       return;
     }
@@ -143,45 +156,34 @@ export function WriteForm() {
   };
 
   const onSubmit = (data: FormData) => {
-    createPostMutation.mutate(
-      {
-        content: data.description,
-        impactIntensity: data.score,
-        categories: data.categories.map((cat) => ({ category: cat })),
-        cause: data.causes[0],
-        feelings: data.feelings,
-        postedAt: data.date?.toISOString(),
-      },
-      {
-        onSuccess: () => {
-          setIsSaved(true);
-          setTimeout(() => {
-            router.push("/");
-          }, 1500);
-        },
-      },
-    );
+    const postData = {
+      content: data.description,
+      impactIntensity: data.score,
+      categories: data.categories.map((cat) => ({ category: cat })),
+      cause: data.causes[0],
+      feelings: data.feelings,
+      postedAt: data.date?.toISOString(),
+    };
+
+    const onSuccess = () => {
+      // replace를 사용하여 히스토리에서 작성 페이지 제거
+      // 뒤로가기 시 작성 페이지로 돌아가지 않음
+      const redirectTo = isEditMode ? `/history/${postId}` : "/";
+      router.replace(
+        `/write/success?redirectTo=${encodeURIComponent(redirectTo)}`,
+      );
+    };
+
+    if (isEditMode) {
+      updatePostMutation.mutate({ postId, data: postData }, { onSuccess });
+    } else {
+      createPostMutation.mutate(postData, { onSuccess });
+    }
   };
 
   return (
     <div className="min-h-screen flex justify-center w-full bg-stone-50">
       <div className="mx-6 w-full max-w-[684px] h-full">
-        {/* 로딩 화면 */}
-        {isSaved && (
-          <div className="flex justify-center items-center">
-            <div className="w-96 flex justify-center text-center items-center bg-gray-50 min-h-screen">
-              <div className="animate-pulse">
-                <h2 className="text-2xl font-semibold text-stone-900 leading-10 mb-2">
-                  {title}
-                </h2>
-                <p className="text-stone-700 text-base font-medium leading-6">
-                  {subtitle}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* 날짜 선택 영역 */}
         <div className="flex justify-between items-center h-14">
           <button onClick={handleBackClick} className="text-xl">
@@ -193,7 +195,10 @@ export function WriteForm() {
             />
           </button>
 
-          <div className="flex items-center gap-2 cursor-pointer">
+          <button
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => setIsCalendarOpen(true)}
+          >
             <h2 className="text-md font-semibold">
               {selectedDate
                 ? `${selectedDate.getFullYear()}년 ${
@@ -202,15 +207,13 @@ export function WriteForm() {
                 : "날짜 선택"}
             </h2>
 
-            <button onClick={() => setIsCalendarOpen(true)}>
-              <Image
-                src="/icons/chevron-down.svg"
-                alt="toggle-calendar"
-                width={17}
-                height={17}
-              />
-            </button>
-          </div>
+            <Image
+              src="/icons/chevron-down.svg"
+              alt="toggle-calendar"
+              width={17}
+              height={17}
+            />
+          </button>
 
           <div className="w-4"></div>
         </div>
@@ -326,28 +329,30 @@ export function WriteForm() {
       </div>
 
       {/* 저장 버튼 */}
-      {!isSaved && (
-        <div className="w-full flex justify-center fixed bottom-5 px-6">
-          <button
-            onClick={handleSubmit(onSubmit)}
-            disabled={createPostMutation.isPending}
-            className={`w-full max-w-[684px] py-4 rounded-xl ${
-              createPostMutation.isPending
-                ? "bg-stone-300 cursor-not-allowed"
-                : "bg-stone-600"
-            }`}
-          >
-            {createPostMutation.isPending ? (
-              <span className="flex items-center justify-center gap-2 text-stone-500 font-semibold">
-                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-stone-500" />
-                저장 중입니다.
-              </span>
-            ) : (
-              <span className="text-white font-semibold">저장</span>
-            )}
-          </button>
-        </div>
-      )}
+      <div className="w-full flex justify-center fixed bottom-5 px-6">
+        <button
+          onClick={handleSubmit(onSubmit)}
+          disabled={
+            createPostMutation.isPending || updatePostMutation.isPending
+          }
+          className={`w-full max-w-[684px] py-4 rounded-xl ${
+            createPostMutation.isPending || updatePostMutation.isPending
+              ? "bg-stone-300 cursor-not-allowed"
+              : "bg-stone-600"
+          }`}
+        >
+          {createPostMutation.isPending || updatePostMutation.isPending ? (
+            <span className="flex items-center justify-center gap-2 text-stone-500 font-semibold">
+              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-stone-500" />
+              저장 중입니다.
+            </span>
+          ) : (
+            <span className="text-white font-semibold">
+              {isEditMode ? "수정" : "저장"}
+            </span>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

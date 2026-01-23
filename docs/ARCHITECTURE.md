@@ -31,8 +31,12 @@ src/
 │   │   ├── [id]/             # 기록 상세 (동적 라우트)
 │   │   ├── layout.tsx
 │   │   └── page.tsx
-│   ├── write/                # 기록 작성 페이지
-│   │   └── page.tsx
+│   ├── write/                # 기록 작성/수정 페이지
+│   │   ├── [id]/             # 기록 수정 (동적 라우트)
+│   │   │   └── page.tsx
+│   │   ├── success/          # 저장 성공 페이지
+│   │   │   └── page.tsx
+│   │   └── page.tsx          # 기록 작성
 │   ├── layout.tsx            # 루트 레이아웃
 │   ├── page.tsx              # 홈 페이지
 │   ├── providers.tsx         # 전역 Provider 설정
@@ -71,9 +75,12 @@ src/
 │           └── WriteForm.tsx
 │
 ├── hooks/                    # 커스텀 훅
-│   ├── queries/              # React Query 훅 (조회 + 변경)
+│   ├── queries/              # React Query 훅 (조회 + 생성)
 │   │   ├── usePosts.ts       # 게시글 조회/생성 훅
 │   │   └── useHome.ts        # 홈 데이터 훅
+│   ├── mutations/            # React Query 훅 (수정 + 삭제)
+│   │   ├── useUpdatePost.ts  # 게시글 수정 훅
+│   │   └── useDeletePost.ts  # 게시글 삭제 훅
 │   └── useLoadingTitle.ts    # 로딩 타이틀 훅
 │
 ├── lib/                      # 유틸리티, 설정

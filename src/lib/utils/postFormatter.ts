@@ -1,6 +1,7 @@
 import { format, parseISO } from "date-fns";
 import { ko } from "date-fns/locale";
 import type { Post, PostResponse } from "@/types/api/posts";
+import { EMOTION_SCORES } from "@/constants/constants";
 
 // UI에서 사용할 게시글 형태
 export interface FormattedPost {
@@ -15,9 +16,14 @@ export interface FormattedPost {
   impactIntensity: number;
 }
 
-// 임시 이모지 URL (추후 impactIntensity에 따라 다른 이모지 적용 가능)
-const PLACEHOLDER_EMOJI =
-  "https://www.figma.com/api/mcp/asset/a3ae2e87-57e4-4992-a5dd-6ba1db5001a6";
+// impactIntensity (1~5)에 해당하는 emotion 이미지 반환
+function getEmotionEmoji(impactIntensity: number): string {
+  const index = Math.max(
+    0,
+    Math.min(impactIntensity - 1, EMOTION_SCORES.length - 1),
+  );
+  return EMOTION_SCORES[index].img;
+}
 
 // 날짜 포맷팅: "12월 18일 (목)"
 function formatDate(dateString: string): string {
@@ -73,7 +79,7 @@ export function formatPost(post: Post): FormattedPost {
     title: extractTitle(post.content),
     content: post.content,
     tags: createTags(post),
-    emoji: PLACEHOLDER_EMOJI,
+    emoji: getEmotionEmoji(post.impactIntensity),
     impactIntensity: post.impactIntensity,
   };
 }
