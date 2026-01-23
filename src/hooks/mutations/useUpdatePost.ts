@@ -1,22 +1,28 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deletePost } from "@/lib/api/posts";
+import { updatePost } from "@/lib/api/posts";
 import { postKeys } from "@/hooks/queries/usePosts";
+import type { PostUpdateRequest } from "@/types/api/posts";
 
-interface UseDeletePostOptions {
+interface UseUpdatePostOptions {
   onSuccess?: () => void;
   onError?: (error: Error) => void;
 }
 
-export function useDeletePost(options?: UseDeletePostOptions) {
+export function useUpdatePost(options?: UseUpdatePostOptions) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deletePost,
+    mutationFn: ({
+      postId,
+      data,
+    }: {
+      postId: number;
+      data: PostUpdateRequest;
+    }) => updatePost(postId, data),
     onSuccess: () => {
-      // 페이지 이동 등 콜백을 먼저 실행 (캐시 무효화 전에 페이지 이동해야 함)
-      options?.onSuccess?.();
       // 게시글 관련 쿼리 모두 무효화
       queryClient.invalidateQueries({ queryKey: postKeys.all });
+      options?.onSuccess?.();
     },
     onError: (error: Error) => {
       options?.onError?.(error);

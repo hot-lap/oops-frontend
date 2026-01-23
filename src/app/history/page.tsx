@@ -1,20 +1,22 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import Link from "next/link";
 import ChevronDownIcon from "@/assets/icons/chevron-down.svg";
-import { Header, AsyncBoundary, SummaryCard, RecordDetail } from "@/components";
+import { AsyncBoundary, Header, RecordDetail, SummaryCard } from "@/components";
 import {
-  useSuspenseWeekPosts,
   useSuspenseInfinitePosts,
+  useSuspenseWeekPosts,
 } from "@/hooks/queries/usePosts";
-import { formatPosts, formatPostResponses } from "@/lib/utils/postFormatter";
 import type { FormattedPost } from "@/lib/utils/postFormatter";
+import { formatPostResponses, formatPosts } from "@/lib/utils/postFormatter";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
 export default function HistoryPage() {
+  const router = useRouter();
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-50">
-      <Header title="조회" />
+      <Header title="조회" onBack={() => router.replace("/")} />
       <AsyncBoundary
         pendingFallback={<HistoryListSkeleton />}
         rejectedFallback={({ reset }) => <HistoryListError onRetry={reset} />}
@@ -60,6 +62,8 @@ function HistoryContent() {
       null
     );
   }, [effectiveSelectedId, records, pastRecords]);
+
+  console.log(selectedRecord);
 
   const summary = weekData.summary;
 

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import type { StaticImageData } from "next/image";
+import { useRouter } from "next/navigation";
 import EditIcon from "@/assets/icons/edit.svg";
 import TrashIcon from "@/assets/icons/trash.svg";
 import { useModalStore } from "@/stores/useModalStore";
@@ -26,12 +27,17 @@ export function RecordDetail({
   tags,
   lastModified,
 }: RecordDetailProps) {
+  const router = useRouter();
   const { showModal, hideModal } = useModalStore();
   const { mutate: deletePost, isPending } = useDeletePost({
     onSuccess: () => {
       hideModal();
     },
   });
+
+  const handleEdit = () => {
+    router.push(`/write/${postId}`);
+  };
 
   const handleDelete = () => {
     showModal({
@@ -54,6 +60,7 @@ export function RecordDetail({
           <ul className="flex items-center gap-2">
             <li>
               <button
+                onClick={handleEdit}
                 aria-label="수정하기"
                 className="flex size-6 items-center justify-center"
               >

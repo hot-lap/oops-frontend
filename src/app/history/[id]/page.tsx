@@ -37,10 +37,18 @@ function HistoryDetailContent({ postId }: { postId: number }) {
 
   const { mutate: deletePost, isPending } = useDeletePost({
     onSuccess: () => {
-      hideModal();
-      router.push("/history");
+      hideModal(true);
+      router.replace("/history");
     },
   });
+
+  const handleBack = () => {
+    router.push("/history");
+  };
+
+  const handleEdit = () => {
+    router.push(`/write/${postId}`);
+  };
 
   const handleDelete = () => {
     showModal({
@@ -55,10 +63,12 @@ function HistoryDetailContent({ postId }: { postId: number }) {
   return (
     <>
       <Header
+        onBack={handleBack}
         rightActions={
           <>
             <li>
               <button
+                onClick={handleEdit}
                 aria-label="수정하기"
                 className="flex size-6 items-center justify-center"
               >
