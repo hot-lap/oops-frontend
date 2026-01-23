@@ -53,13 +53,18 @@ function createTags(post: Post): string[] {
   // categories 배열에서 태그 추출
   if (post.categories && post.categories.length > 0) {
     post.categories.forEach((cat) => {
-      tags.push(cat.customCategory || cat.category);
+      if (cat.customCategory) {
+        // customCategory가 있으면 '#' 붙여서 표시
+        tags.push(`#${cat.customCategory}`);
+      } else if (cat.category) {
+        tags.push(cat.category);
+      }
     });
   }
 
   // cause 추가
   if (post.cause) {
-    tags.push(`#${post.cause}`);
+    tags.push(post.cause);
   }
 
   // feelings 배열에서 태그 추출
