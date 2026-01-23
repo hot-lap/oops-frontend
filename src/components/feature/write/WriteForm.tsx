@@ -17,6 +17,7 @@ type FormData = {
   description: string;
   score: number;
   categories: string[];
+  customCategories: string[];
   causes: string[];
   feelings: string[];
   date: Date | null;
@@ -46,7 +47,12 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
       ? {
           description: initialData.content,
           score: initialData.impactIntensity,
-          categories: initialData.categories.map((c) => c.category),
+          categories: initialData.categories
+            .filter((c) => c.category && !c.customCategory)
+            .map((c) => c.category),
+          customCategories: initialData.categories
+            .filter((c) => c.customCategory)
+            .map((c) => c.customCategory as string),
           causes: initialData.cause ? [initialData.cause] : [],
           feelings: initialData.feelings,
           date: new Date(initialData.postedAt),
@@ -55,6 +61,7 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
           description: "",
           score: 3,
           categories: [],
+          customCategories: [],
           causes: [],
           feelings: [],
           date: new Date(),
@@ -64,6 +71,8 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const selectedDate = useWatch({ control, name: "date" });
   const selectedCategories = useWatch({ control, name: "categories" }) ?? [];
+  const customCategories =
+    useWatch({ control, name: "customCategories" }) ?? [];
   const selectedCauses = useWatch({ control, name: "causes" }) ?? [];
   const selectedFeelings = useWatch({ control, name: "feelings" }) ?? [];
   const score = useWatch({ control, name: "score" });
@@ -155,11 +164,35 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
     }
   };
 
+  // 커스텀 카테고리 추가
+  const handleAddCustomCategory = (value: string) => {
+    if (!customCategories.includes(value)) {
+      setValue("customCategories", [...customCategories, value]);
+    }
+  };
+
+  // 커스텀 카테고리 삭제
+  const handleRemoveCustomCategory = (value: string) => {
+    setValue(
+      "customCategories",
+      customCategories.filter((v) => v !== value),
+    );
+  };
+
   const onSubmit = (data: FormData) => {
+    // 일반 카테고리와 커스텀 카테고리 합치기
+    const allCategories = [
+      ...data.categories.map((cat) => ({ category: cat })),
+      ...data.customCategories.map((custom) => ({
+        category: "직접 입력",
+        customCategory: custom,
+      })),
+    ];
+
     const postData = {
       content: data.description,
       impactIntensity: data.score,
-      categories: data.categories.map((cat) => ({ category: cat })),
+      categories: allCategories,
       cause: data.causes[0],
       feelings: data.feelings,
       postedAt: data.date?.toISOString(),
@@ -311,11 +344,14 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
           <AsyncBoundary pendingFallback={<ConfigSelectorSkeleton />}>
             <ConfigSelector
               selectedCategories={selectedCategories}
+              customCategories={customCategories}
               selectedCauses={selectedCauses}
               selectedFeelings={selectedFeelings}
               onToggleCategory={(value, multipleSelectable) =>
                 toggleSelect("categories", value, multipleSelectable)
               }
+              onAddCustomCategory={handleAddCustomCategory}
+              onRemoveCustomCategory={handleRemoveCustomCategory}
               onToggleCause={(value, multipleSelectable) =>
                 toggleSelect("causes", value, multipleSelectable)
               }

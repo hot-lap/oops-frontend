@@ -1,6 +1,7 @@
 // 카테고리 정보 타입
+// category 또는 customCategory 중 하나는 필수
 export interface CategoryInfo {
-  category: string;
+  category?: string;
   customCategory?: string;
 }
 

@@ -27,6 +27,10 @@ src/
 │   ├── (auth)/               # Route Group - 인증 관련 페이지
 │   │   ├── login/
 │   │   └── signup/
+│   ├── auth/                 # OAuth 콜백 페이지
+│   │   └── google/
+│   │       └── callback/
+│   │           └── page.tsx  # Google OAuth 콜백 처리
 │   ├── history/              # 기록 조회 페이지
 │   │   ├── [id]/             # 기록 상세 (동적 라우트)
 │   │   ├── layout.tsx
@@ -88,9 +92,12 @@ src/
 │   │   ├── client.ts         # API 클라이언트
 │   │   ├── auth.ts           # 인증 API
 │   │   ├── home.ts           # 홈 API
+│   │   ├── oauth.ts          # OAuth API (회원가입/로그인)
 │   │   └── posts.ts          # 게시글 API
 │   ├── auth/                 # 인증 유틸리티
 │   │   └── token.ts          # 토큰 관리
+│   ├── oauth/                # OAuth 유틸리티
+│   │   └── google.ts         # Google OAuth URL 생성
 │   ├── utils/                # 헬퍼 함수
 │   │   └── postFormatter.ts  # API → UI 데이터 변환
 │   └── queryClient.ts        # React Query 설정
@@ -98,7 +105,8 @@ src/
 ├── types/                    # 타입 정의
 │   ├── api/                  # API 응답 타입
 │   │   ├── posts.ts
-│   │   └── home.ts
+│   │   ├── home.ts
+│   │   └── oauth.ts          # OAuth 응답 타입
 │   └── index.ts              # 공통 타입 (Modal 등)
 │
 ├── stores/                   # 전역 상태 (Zustand)

@@ -11,6 +11,7 @@ import { formatPostResponses, formatPosts } from "@/lib/utils/postFormatter";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { redirectToGoogleOAuth } from "@/lib/oauth/google";
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -124,12 +125,12 @@ function HistoryContent() {
             />
           </div>
 
-          <Link
-            href="#"
+          <button
+            onClick={redirectToGoogleOAuth}
             className="mt-2 text-[13px] font-medium leading-[1.6] text-[#3878E0] underline"
           >
             로그인하고 기록 보관하기
-          </Link>
+          </button>
 
           {/* Past Records Section */}
           {pastRecords.length > 0 && (
