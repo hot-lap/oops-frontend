@@ -208,12 +208,10 @@ GET /api/v1/my-info
 
 ```json
 {
-  "data": {
-    "id": 0,
-    "name": "string",
-    "nickname": "string",
-    "isGuest": true
-  }
+  "id": 0,
+  "name": "string",
+  "nickname": "string",
+  "guest": true
 }
 ```
 
@@ -551,4 +549,4 @@ GET /api/v1/posts/configs
 | id       | int64   | O    | 유저 ID     |
 | name     | string  | X    | 이름        |
 | nickname | string  | X    | 닉네임      |
-| isGuest  | boolean | O    | 게스트 여부 |
+| guest    | boolean | O    | 게스트 여부 |

@@ -91,10 +91,10 @@ export async function refreshTokens(
 // ============================================
 
 interface MyInfoResponse {
-  data: {
-    userId: number;
-    type: "GUEST" | "USER";
-  };
+  id: number;
+  name: string | null;
+  nickname: string | null;
+  guest: boolean;
 }
 
 /**
@@ -103,7 +103,7 @@ interface MyInfoResponse {
  */
 export async function getMyInfo(accessToken: string): Promise<{
   userId: number;
-  type: "GUEST" | "USER";
+  isGuest: boolean;
 } | null> {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/my-info`, {
@@ -119,7 +119,10 @@ export async function getMyInfo(accessToken: string): Promise<{
     }
 
     const data: MyInfoResponse = await response.json();
-    return data.data;
+    return {
+      userId: data.id,
+      isGuest: data.guest,
+    };
   } catch {
     return null;
   }

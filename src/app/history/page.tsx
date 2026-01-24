@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { redirectToGoogleOAuth } from "@/lib/oauth/google";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -31,6 +32,7 @@ export default function HistoryPage() {
 // 실제 데이터를 fetch하고 렌더링하는 컴포넌트
 function HistoryContent() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const { userType } = useAuthStore();
 
   // Suspense 버전 - data는 항상 존재
   const { data: weekData } = useSuspenseWeekPosts();
@@ -125,12 +127,14 @@ function HistoryContent() {
             />
           </div>
 
-          <button
-            onClick={redirectToGoogleOAuth}
-            className="mt-2 text-[13px] font-medium leading-[1.6] text-[#3878E0] underline"
-          >
-            로그인하고 기록 보관하기
-          </button>
+          {userType === "guest" && (
+            <button
+              onClick={redirectToGoogleOAuth}
+              className="mt-2 text-[13px] font-medium leading-[1.6] text-[#3878E0] underline"
+            >
+              로그인하고 기록 보관하기
+            </button>
+          )}
 
           {/* Past Records Section */}
           {pastRecords.length > 0 && (

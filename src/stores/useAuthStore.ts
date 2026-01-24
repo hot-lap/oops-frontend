@@ -66,7 +66,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           set({
             isInitialized: true,
             isLoading: false,
-            userType: myInfo.type === "GUEST" ? "guest" : "user",
+            userType: myInfo.isGuest ? "guest" : "user",
             userId: myInfo.userId,
           });
         } else {
