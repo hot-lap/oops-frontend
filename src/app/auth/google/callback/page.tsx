@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { oauthSignup } from "@/lib/api/oauth";
@@ -10,8 +10,14 @@ export default function GoogleCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  // React 18 Strict Mode에서 useEffect 중복 실행 방지
+  const isCalledRef = useRef(false);
 
   useEffect(() => {
+    // 이미 호출된 경우 무시 (OAuth 코드는 일회성)
+    if (isCalledRef.current) return;
+    isCalledRef.current = true;
+
     const handleCallback = async () => {
       const code = searchParams.get("code");
       const errorParam = searchParams.get("error");

@@ -199,7 +199,7 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
       categories: allCategories,
       cause: data.causes[0],
       feelings: data.feelings,
-      // postedAt: data.date?.toISOString(),
+      postedAt: data.date?.toISOString(),
     };
 
     const onSuccess = () => {
