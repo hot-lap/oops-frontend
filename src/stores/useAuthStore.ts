@@ -5,7 +5,6 @@ import {
   saveGuestToken,
   saveUserTokens,
   clearTokens,
-  updateAccessToken,
   type UserType,
 } from "@/lib/auth/token";
 import {
@@ -46,8 +45,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   /**
    * 앱 초기화 시 호출
    * - 기존 토큰이 있으면 유효성 검증 후 상태 복원
-   * - 토큰이 유효하지 않으면 삭제 후 Guest 토큰 재발급
-   * - 토큰이 없으면 Guest 토큰 발급
+   * - 토큰이 유효하지 않으면 refreshToken으로 갱신 시도
+   * - refreshToken도 없거나 갱신 실패 시 Guest 토큰 발급
    */
   initialize: async () => {
     if (get().isInitialized) return;
@@ -56,6 +55,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     try {
       const existingToken = getAccessToken();
+      const existingRefreshToken = getRefreshToken();
 
       if (existingToken) {
         // 기존 토큰 있음 - 유효성 검증
@@ -69,13 +69,63 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             userType: myInfo.isGuest ? "guest" : "user",
             userId: myInfo.userId,
           });
+        } else if (existingRefreshToken) {
+          // accessToken 유효하지 않지만 refreshToken 있음 - 갱신 시도
+          console.warn("accessToken 유효하지 않음, 갱신 시도합니다.");
+          const refreshSuccess = await get().refreshTokens();
+
+          if (refreshSuccess) {
+            // 갱신 성공 - 새 토큰으로 유저 정보 조회
+            const newToken = getAccessToken();
+            if (newToken) {
+              const newMyInfo = await getMyInfo(newToken);
+              if (newMyInfo) {
+                set({
+                  isInitialized: true,
+                  isLoading: false,
+                  userType: newMyInfo.isGuest ? "guest" : "user",
+                  userId: newMyInfo.userId,
+                });
+                return;
+              }
+            }
+          }
+          // 갱신 실패 - Guest 토큰 발급
+          clearTokens();
+          await get().loginAsGuest();
+          set({ isInitialized: true });
         } else {
-          // 토큰 유효하지 않음 - 삭제 후 Guest 토큰 재발급
+          // refreshToken도 없음 - Guest 토큰 발급
           console.warn("토큰이 유효하지 않음, 새로 발급합니다.");
           clearTokens();
           await get().loginAsGuest();
           set({ isInitialized: true });
         }
+      } else if (existingRefreshToken) {
+        // accessToken 없지만 refreshToken 있음 - 갱신 시도
+        console.warn("accessToken 없음, refreshToken으로 갱신 시도합니다.");
+        const refreshSuccess = await get().refreshTokens();
+
+        if (refreshSuccess) {
+          // 갱신 성공 - 새 토큰으로 유저 정보 조회
+          const newToken = getAccessToken();
+          if (newToken) {
+            const newMyInfo = await getMyInfo(newToken);
+            if (newMyInfo) {
+              set({
+                isInitialized: true,
+                isLoading: false,
+                userType: newMyInfo.isGuest ? "guest" : "user",
+                userId: newMyInfo.userId,
+              });
+              return;
+            }
+          }
+        }
+        // 갱신 실패 - Guest 토큰 발급
+        clearTokens();
+        await get().loginAsGuest();
+        set({ isInitialized: true });
       } else {
         // 토큰 없음 - Guest 토큰 발급
         await get().loginAsGuest();
@@ -172,18 +222,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const accessToken = getAccessToken();
     const refreshToken = getRefreshToken();
 
-    if (!accessToken || !refreshToken) {
+    // refreshToken만 있어도 갱신 시도 가능
+    if (!refreshToken) {
       return false;
     }
 
     try {
-      const newTokens = await refreshTokensApi(accessToken, refreshToken);
-      updateAccessToken(newTokens.accessToken);
+      const newTokens = await refreshTokensApi(accessToken || "", refreshToken);
+      // accessToken과 refreshToken 모두 갱신
+      saveUserTokens(newTokens.accessToken, newTokens.refreshToken);
       return true;
     } catch (error) {
       console.error("토큰 갱신 실패:", error);
-      // 갱신 실패 시 로그아웃 처리
-      await get().logout();
+      // 갱신 실패 시 토큰만 삭제 (logout 호출하면 순환 발생 가능)
       return false;
     }
   },
