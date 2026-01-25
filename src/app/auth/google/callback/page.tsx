@@ -83,7 +83,7 @@ export default function GoogleCallbackPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-stone-50">
       <Image
-        src="/images/emotion-3.svg"
+        src="/icons/emotion3.svg"
         alt="loading"
         width={80}
         height={80}
