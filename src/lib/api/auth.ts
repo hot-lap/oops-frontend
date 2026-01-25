@@ -91,10 +91,12 @@ export async function refreshTokens(
 // ============================================
 
 interface MyInfoResponse {
-  id: number;
-  name: string | null;
-  nickname: string | null;
-  guest: boolean;
+  data: {
+    id: number;
+    name: string | null;
+    nickname: string | null;
+    guest: boolean;
+  };
 }
 
 /**
@@ -118,10 +120,10 @@ export async function getMyInfo(accessToken: string): Promise<{
       return null;
     }
 
-    const data: MyInfoResponse = await response.json();
+    const response_data: MyInfoResponse = await response.json();
     return {
-      userId: data.id,
-      isGuest: data.guest,
+      userId: response_data.data.id,
+      isGuest: response_data.data.guest,
     };
   } catch {
     return null;
