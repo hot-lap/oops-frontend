@@ -95,17 +95,29 @@ export function hasToken(): boolean {
 /**
  * 토큰 저장
  * - Guest: 영구 저장 (브라우저에 계속 유지)
- * - User: Access 7일, Refresh 30일
+ * - User: accessToken 90일, refreshToken 90일
+ *
+ * 서버 토큰 만료 시간:
+ * - accessToken: 3시간
+ * - refreshToken: 90일
+ *
+ * 참고: accessToken 쿠키를 90일로 설정하는 이유
+ * - 현재 BE에서 토큰 갱신 시 accessToken + refreshToken 둘 다 필요
+ * - 만료된 accessToken이라도 쿠키에 남아있어야 갱신 가능
+ * - BE에서 refreshToken만으로 갱신 가능하도록 수정되면 3시간으로 변경 예정
+ *
+ * @see docs/AUTH.md - 토큰 갱신 관련 이슈
+ * @see docs/BFF_ARCHITECTURE.md - 보안 강화 방안
  */
 export function saveTokens(data: TokenData): void {
   const isGuestUser = data.userType === "guest";
-  const expiration = isGuestUser ? "permanent" : 7;
+  const expiration = isGuestUser ? "permanent" : 90;
 
   setCookie(TOKEN_KEY, data.accessToken, expiration);
   setCookie(USER_TYPE_KEY, data.userType, expiration);
 
   if (data.refreshToken) {
-    setCookie(REFRESH_TOKEN_KEY, data.refreshToken, 30);
+    setCookie(REFRESH_TOKEN_KEY, data.refreshToken, 90);
   }
 }
 
@@ -145,9 +157,9 @@ export function clearTokens(): void {
 /**
  * Access 토큰만 업데이트 (토큰 갱신 시)
  * - Guest: 영구 저장
- * - User: 7일
+ * - User: 90일
  */
 export function updateAccessToken(accessToken: string): void {
-  const expiration = isGuest() ? "permanent" : 7;
+  const expiration = isGuest() ? "permanent" : 90;
   setCookie(TOKEN_KEY, accessToken, expiration);
 }

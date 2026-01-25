@@ -1,16 +1,57 @@
-import { getAccessToken } from "@/lib/auth/token";
+import {
+  getAccessToken,
+  getRefreshToken,
+  saveUserTokens,
+  clearTokens,
+  getUserType,
+} from "@/lib/auth/token";
 import toast from "react-hot-toast";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.oops.rest";
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean>;
+  skipAuthRefresh?: boolean; // 토큰 갱신 재시도 방지용
 }
 
 interface ApiErrorResponse {
   errorCode?: string;
   reason?: string;
   debug?: string;
+}
+
+// 토큰 갱신 중복 요청 방지
+let isRefreshing = false;
+let refreshPromise: Promise<boolean> | null = null;
+
+/**
+ * 토큰 갱신 (API 클라이언트 내부용)
+ */
+async function refreshTokensInternal(): Promise<boolean> {
+  const accessToken = getAccessToken();
+  const refreshToken = getRefreshToken();
+
+  if (!accessToken || !refreshToken) {
+    return false;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/token/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ accessToken, refreshToken }),
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+    saveUserTokens(data.data.accessToken, data.data.refreshToken);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 class ApiClient {
@@ -47,7 +88,7 @@ class ApiClient {
   }
 
   async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-    const { params, ...fetchOptions } = options;
+    const { params, skipAuthRefresh, ...fetchOptions } = options;
     const url = this.buildUrl(endpoint, params);
 
     const response = await fetch(url, {
@@ -57,6 +98,36 @@ class ApiClient {
         ...fetchOptions.headers,
       },
     });
+
+    // 401 에러 시 토큰 갱신 시도 (User만, 재시도 아닌 경우만)
+    if (
+      response.status === 401 &&
+      !skipAuthRefresh &&
+      getUserType() === "user"
+    ) {
+      // 중복 갱신 요청 방지
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshPromise = refreshTokensInternal();
+      }
+
+      const refreshSuccess = await refreshPromise;
+      isRefreshing = false;
+      refreshPromise = null;
+
+      if (refreshSuccess) {
+        // 토큰 갱신 성공 - 원래 요청 재시도
+        return this.request<T>(endpoint, { ...options, skipAuthRefresh: true });
+      } else {
+        // 토큰 갱신 실패 - 토큰 삭제 (로그인 페이지로 유도)
+        clearTokens();
+        if (typeof window !== "undefined") {
+          toast.error("세션이 만료되었습니다. 다시 로그인해주세요.");
+          // 페이지 새로고침으로 Guest 토큰 재발급 유도
+          window.location.reload();
+        }
+      }
+    }
 
     if (!response.ok) {
       let errorResponse: ApiErrorResponse | null = null;
