@@ -66,7 +66,7 @@ function HistoryContent() {
     );
   }, [effectiveSelectedId, records, pastRecords]);
 
-  console.log(selectedRecord);
+  console.log(userType);
 
   const summary = weekData.summary;
 
@@ -74,7 +74,7 @@ function HistoryContent() {
     <main className="flex flex-1 gap-6 px-4 pt-3 pb-8 lg:px-0">
       {/* Left Panel - Record List */}
       <div className="flex w-full flex-1 justify-center lg:justify-end lg:pl-[142px] lg:pr-12">
-        <div className="flex w-full max-w-[532px] flex-col items-center">
+        <div className="flex w-full max-w-full lg:max-w-[532px] flex-col items-center">
           {/* Recent Records Section */}
           <section aria-labelledby="recent-records-title" className="w-full">
             <h2 id="recent-records-title" className="sr-only">
@@ -278,7 +278,7 @@ function HistoryListSkeleton() {
   return (
     <main className="flex flex-1 gap-6 px-4 pt-3 pb-8 lg:px-0">
       <div className="flex w-full flex-1 justify-center lg:justify-end lg:pl-[142px] lg:pr-12">
-        <div className="flex w-full max-w-[532px] flex-col items-center gap-2">
+        <div className="flex w-full max-w-full lg:max-w-[532px] flex-col items-center gap-2">
           {[1, 2, 3].map((i) => (
             <div
               key={i}

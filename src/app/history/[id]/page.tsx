@@ -93,7 +93,7 @@ function HistoryDetailContent({ postId }: { postId: number }) {
       />
 
       <main className="flex flex-1 flex-col items-center px-4 pb-8">
-        <article className="flex w-full max-w-[532px] flex-col items-center">
+        <article className="flex w-full max-w-[684px] flex-col items-center">
           <RecordContent
             emoji={record.emoji}
             datetime={record.datetime}
@@ -113,7 +113,7 @@ function HistoryDetailSkeleton() {
     <>
       <Header />
       <main className="flex flex-1 flex-col items-center px-4 pb-8">
-        <div className="flex w-full max-w-[532px] flex-col items-center">
+        <div className="flex w-full max-w-[684px] flex-col items-center">
           <div className="size-20 animate-pulse rounded-full bg-gray-200" />
           <div className="mt-4 h-6 w-32 animate-pulse rounded bg-gray-200" />
           <div className="mt-4 min-h-40 w-full animate-pulse rounded-[20px] bg-gray-200" />
