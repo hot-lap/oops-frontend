@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { oauthSignup } from "@/lib/api/oauth";
+import { oauthSignup } from "@/lib/api";
 import { saveUserTokens, clearTokens } from "@/lib/auth/token";
 
 export default function GoogleCallbackPage() {

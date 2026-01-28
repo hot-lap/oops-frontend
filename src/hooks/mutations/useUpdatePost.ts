@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updatePost } from "@/lib/api/posts";
+import { updatePost } from "@/lib/api";
 import { postKeys } from "@/hooks/queries/usePosts";
 import type { PostUpdateRequest } from "@/types/api/posts";
 

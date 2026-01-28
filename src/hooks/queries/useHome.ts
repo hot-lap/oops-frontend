@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getHome } from "@/lib/api/home";
+import { getHome } from "@/lib/api";
 
 export const homeKeys = {
   all: ["home"] as const,
