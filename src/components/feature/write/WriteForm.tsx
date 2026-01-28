@@ -1,13 +1,13 @@
 "use client";
 
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, Control, UseFormSetValue } from "react-hook-form";
 import { useState, useEffect, useCallback, Activity } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Calendar, AsyncBoundary, LeaveConfirmModal } from "@/components";
 import { EMOTION_SCORES } from "@/constants/constants";
 import { useModalStore } from "@/stores/useModalStore";
-import { useCreatePost } from "@/hooks/queries/usePosts";
+import { useCreatePost, useSuspensePostConfig } from "@/hooks/queries/usePosts";
 import { useUpdatePost } from "@/hooks/mutations/useUpdatePost";
 import { ConfigSelector } from "./ConfigSelector";
 import { ConfigSelectorSkeleton } from "./ConfigSelectorSkeleton";
@@ -22,6 +22,106 @@ type FormData = {
   feelings: string[];
   date: Date | null;
 };
+
+// Config를 fetch하고 ConfigSelector를 렌더링하는 내부 컴포넌트
+interface ConfigSectionsProps {
+  control: Control<FormData>;
+  setValue: UseFormSetValue<FormData>;
+}
+
+function ConfigSections({ control, setValue }: ConfigSectionsProps) {
+  const { data: config } = useSuspensePostConfig();
+
+  // useWatch를 내부에서 사용
+  const selectedCategories = useWatch({ control, name: "categories" }) ?? [];
+  const customCategories =
+    useWatch({ control, name: "customCategories" }) ?? [];
+  const selectedCauses = useWatch({ control, name: "causes" }) ?? [];
+  const selectedFeelings = useWatch({ control, name: "feelings" }) ?? [];
+
+  // "직접 입력"을 제외한 카테고리 목록
+  const regularCategories = config.category.categories.filter(
+    (item) => item !== "직접 입력",
+  );
+
+  // 토글 로직도 내부에서 처리
+  const toggleSelect = (
+    field: "categories" | "causes" | "feelings",
+    value: string,
+    multipleSelectable: boolean,
+  ) => {
+    let current: string[] = [];
+
+    if (field === "categories") current = selectedCategories;
+    if (field === "causes") current = selectedCauses;
+    if (field === "feelings") current = selectedFeelings;
+
+    if (current.includes(value)) {
+      setValue(
+        field,
+        current.filter((v) => v !== value),
+      );
+    } else if (multipleSelectable) {
+      setValue(field, [...current, value]);
+    } else {
+      setValue(field, [value]);
+    }
+  };
+
+  // 커스텀 카테고리 추가
+  const handleAddCustomCategory = (value: string) => {
+    if (!customCategories.includes(value)) {
+      setValue("customCategories", [...customCategories, value]);
+    }
+  };
+
+  // 커스텀 카테고리 삭제
+  const handleRemoveCustomCategory = (value: string) => {
+    setValue(
+      "customCategories",
+      customCategories.filter((v) => v !== value),
+    );
+  };
+
+  return (
+    <ConfigSelector className="flex flex-col gap-3">
+      <ConfigSelector.Section title="유형">
+        <ConfigSelector.ChipGroup
+          items={regularCategories}
+          selected={selectedCategories}
+          onToggle={(item) =>
+            toggleSelect("categories", item, config.category.multipleSelectable)
+          }
+        />
+        <ConfigSelector.CustomChips
+          items={customCategories}
+          onRemove={handleRemoveCustomCategory}
+        />
+        <ConfigSelector.CustomInput onAdd={handleAddCustomCategory} />
+      </ConfigSelector.Section>
+
+      <ConfigSelector.Section title="원인">
+        <ConfigSelector.ChipGroup
+          items={config.cause.causes}
+          selected={selectedCauses}
+          onToggle={(item) =>
+            toggleSelect("causes", item, config.cause.multipleSelectable)
+          }
+        />
+      </ConfigSelector.Section>
+
+      <ConfigSelector.Section title="감정" className="mb-25">
+        <ConfigSelector.ChipGroup
+          items={config.feeling.feelings}
+          selected={selectedFeelings}
+          onToggle={(item) =>
+            toggleSelect("feelings", item, config.feeling.multipleSelectable)
+          }
+        />
+      </ConfigSelector.Section>
+    </ConfigSelector>
+  );
+}
 
 interface WriteFormProps {
   postId?: number;
@@ -74,11 +174,6 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const selectedDate = useWatch({ control, name: "date" });
-  const selectedCategories = useWatch({ control, name: "categories" }) ?? [];
-  const customCategories =
-    useWatch({ control, name: "customCategories" }) ?? [];
-  const selectedCauses = useWatch({ control, name: "causes" }) ?? [];
-  const selectedFeelings = useWatch({ control, name: "feelings" }) ?? [];
   const score = useWatch({ control, name: "score" });
 
   const currentScoreData = EMOTION_SCORES[score - 1];
@@ -140,47 +235,6 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
       setValue("date", value);
       setIsCalendarOpen(false);
     }
-  };
-
-  const toggleSelect = (
-    field: "categories" | "causes" | "feelings",
-    value: string,
-    multipleSelectable: boolean,
-  ) => {
-    let current: string[] = [];
-
-    if (field === "categories") current = selectedCategories;
-    if (field === "causes") current = selectedCauses;
-    if (field === "feelings") current = selectedFeelings;
-
-    if (current.includes(value)) {
-      // 이미 선택된 항목을 클릭하면 선택 해제
-      setValue(
-        field,
-        current.filter((v) => v !== value),
-      );
-    } else if (multipleSelectable) {
-      // 다중 선택 가능하면 추가
-      setValue(field, [...current, value]);
-    } else {
-      // 단일 선택만 가능하면 교체
-      setValue(field, [value]);
-    }
-  };
-
-  // 커스텀 카테고리 추가
-  const handleAddCustomCategory = (value: string) => {
-    if (!customCategories.includes(value)) {
-      setValue("customCategories", [...customCategories, value]);
-    }
-  };
-
-  // 커스텀 카테고리 삭제
-  const handleRemoveCustomCategory = (value: string) => {
-    setValue(
-      "customCategories",
-      customCategories.filter((v) => v !== value),
-    );
   };
 
   const onSubmit = (data: FormData) => {
@@ -347,24 +401,7 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
 
           {/* 유형, 원인, 감정 - AsyncBoundary로 감싸기 */}
           <AsyncBoundary pendingFallback={<ConfigSelectorSkeleton />}>
-            <ConfigSelector
-              selectedCategories={selectedCategories}
-              customCategories={customCategories}
-              selectedCauses={selectedCauses}
-              selectedFeelings={selectedFeelings}
-              onToggleCategory={(value, multipleSelectable) =>
-                toggleSelect("categories", value, multipleSelectable)
-              }
-              onAddCustomCategory={handleAddCustomCategory}
-              onRemoveCustomCategory={handleRemoveCustomCategory}
-              onToggleCause={(value, multipleSelectable) =>
-                toggleSelect("causes", value, multipleSelectable)
-              }
-              onToggleFeeling={(value, multipleSelectable) =>
-                toggleSelect("feelings", value, multipleSelectable)
-              }
-            />
-            {/* <ConfigSelectorSkeleton /> */}
+            <ConfigSections control={control} setValue={setValue} />
           </AsyncBoundary>
         </div>
       </div>
