@@ -27,18 +27,36 @@ interface TokenData {
 // 쿠키 유틸리티
 // ============================================
 
+interface CookieExpiration {
+  days?: number;
+  hours?: number;
+  permanent?: boolean;
+}
+
 function setCookie(
   key: string,
   value: string,
-  days: number | "permanent" = 7,
+  expiration: CookieExpiration | "permanent" = { days: 7 },
 ): void {
   if (typeof window === "undefined") return;
 
-  // permanent인 경우 10년으로 설정
-  const expirationDays = days === "permanent" ? 365 * 10 : days;
-  const expires = new Date(
-    Date.now() + expirationDays * 24 * 60 * 60 * 1000,
-  ).toUTCString();
+  let expirationMs: number;
+
+  if (
+    expiration === "permanent" ||
+    (typeof expiration === "object" && expiration.permanent)
+  ) {
+    // permanent인 경우 10년으로 설정
+    expirationMs = 365 * 10 * 24 * 60 * 60 * 1000;
+  } else if (typeof expiration === "object") {
+    const days = expiration.days || 0;
+    const hours = expiration.hours || 0;
+    expirationMs = (days * 24 + hours) * 60 * 60 * 1000;
+  } else {
+    expirationMs = 7 * 24 * 60 * 60 * 1000; // 기본 7일
+  }
+
+  const expires = new Date(Date.now() + expirationMs).toUTCString();
   document.cookie = `${key}=${value}; expires=${expires}; path=/; SameSite=Lax`;
 }
 
@@ -95,29 +113,33 @@ export function hasToken(): boolean {
 /**
  * 토큰 저장
  * - Guest: 영구 저장 (브라우저에 계속 유지)
- * - User: accessToken 90일, refreshToken 90일
+ * - User: accessToken 3시간, refreshToken 90일
  *
  * 서버 토큰 만료 시간:
  * - accessToken: 3시간
  * - refreshToken: 90일
  *
- * 참고: accessToken 쿠키를 90일로 설정하는 이유
- * - 현재 BE에서 토큰 갱신 시 accessToken + refreshToken 둘 다 필요
- * - 만료된 accessToken이라도 쿠키에 남아있어야 갱신 가능
- * - BE에서 refreshToken만으로 갱신 가능하도록 수정되면 3시간으로 변경 예정
+ * Refresh Token Rotation:
+ * - 토큰 갱신 시 refreshToken도 새로 발급됨
+ * - refreshToken만으로 갱신 가능 (accessToken 불필요)
  *
- * @see docs/AUTH.md - 토큰 갱신 관련 이슈
+ * @see docs/AUTH.md - 토큰 갱신 관련
  * @see docs/BFF_ARCHITECTURE.md - 보안 강화 방안
  */
 export function saveTokens(data: TokenData): void {
   const isGuestUser = data.userType === "guest";
-  const expiration = isGuestUser ? "permanent" : 90;
 
-  setCookie(TOKEN_KEY, data.accessToken, expiration);
-  setCookie(USER_TYPE_KEY, data.userType, expiration);
+  if (isGuestUser) {
+    setCookie(TOKEN_KEY, data.accessToken, "permanent");
+    setCookie(USER_TYPE_KEY, data.userType, "permanent");
+  } else {
+    // User: accessToken 3시간, refreshToken 90일
+    setCookie(TOKEN_KEY, data.accessToken, { hours: 3 });
+    setCookie(USER_TYPE_KEY, data.userType, { days: 90 });
 
-  if (data.refreshToken) {
-    setCookie(REFRESH_TOKEN_KEY, data.refreshToken, 90);
+    if (data.refreshToken) {
+      setCookie(REFRESH_TOKEN_KEY, data.refreshToken, { days: 90 });
+    }
   }
 }
 
@@ -157,9 +179,12 @@ export function clearTokens(): void {
 /**
  * Access 토큰만 업데이트 (토큰 갱신 시)
  * - Guest: 영구 저장
- * - User: 90일
+ * - User: 3시간
  */
 export function updateAccessToken(accessToken: string): void {
-  const expiration = isGuest() ? "permanent" : 90;
-  setCookie(TOKEN_KEY, accessToken, expiration);
+  if (isGuest()) {
+    setCookie(TOKEN_KEY, accessToken, "permanent");
+  } else {
+    setCookie(TOKEN_KEY, accessToken, { hours: 3 });
+  }
 }

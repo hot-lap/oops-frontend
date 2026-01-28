@@ -219,7 +219,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
    * @returns 갱신 성공 여부
    */
   refreshTokens: async () => {
-    const accessToken = getAccessToken();
     const refreshToken = getRefreshToken();
 
     // refreshToken만 있어도 갱신 시도 가능
@@ -228,7 +227,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     try {
-      const newTokens = await refreshTokensApi(accessToken || "", refreshToken);
+      const newTokens = await refreshTokensApi(refreshToken);
       // accessToken과 refreshToken 모두 갱신
       saveUserTokens(newTokens.accessToken, newTokens.refreshToken);
       return true;

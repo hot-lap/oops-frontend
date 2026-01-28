@@ -116,6 +116,7 @@ GET /api/v1/oauth/{provider}/signup/check
 | 이름 | 타입 | 필수 | 설명 |
 |------|------|------|------|
 | authorizationCode | string | O | OAuth 인가 코드 |
+| redirectUri | string | O | FE에서 사용한 redirect URI |
 
 **Response**: `200 OK`
 
@@ -164,7 +165,6 @@ POST /api/v1/auth/token/refresh
 
 ```json
 {
-  "accessToken": "string", // required
   "refreshToken": "string" // required
 }
 ```
@@ -208,10 +208,12 @@ GET /api/v1/my-info
 
 ```json
 {
-  "id": 0,
-  "name": "string",
-  "nickname": "string",
-  "guest": true
+  "data": {
+    "id": 0,
+    "name": "string",
+    "nickname": "string",
+    "isGuest": true
+  }
 }
 ```
 
@@ -549,4 +551,4 @@ GET /api/v1/posts/configs
 | id       | int64   | O    | 유저 ID     |
 | name     | string  | X    | 이름        |
 | nickname | string  | X    | 닉네임      |
-| guest    | boolean | O    | 게스트 여부 |
+| isGuest  | boolean | O    | 게스트 여부 |

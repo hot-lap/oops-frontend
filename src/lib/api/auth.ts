@@ -16,7 +16,6 @@ interface GuestSignUpResponse {
 }
 
 interface TokenRefreshRequest {
-  accessToken: string;
   refreshToken: string;
 }
 
@@ -59,10 +58,7 @@ export async function createGuestUser(): Promise<{
 /**
  * 토큰 갱신
  */
-export async function refreshTokens(
-  accessToken: string,
-  refreshToken: string,
-): Promise<{
+export async function refreshTokens(refreshToken: string): Promise<{
   accessToken: string;
   refreshToken: string;
 }> {
@@ -70,7 +66,6 @@ export async function refreshTokens(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      accessToken,
       refreshToken,
     } satisfies TokenRefreshRequest),
   });
@@ -95,7 +90,7 @@ interface MyInfoResponse {
     id: number;
     name: string | null;
     nickname: string | null;
-    guest: boolean;
+    isGuest: boolean;
   };
 }
 
@@ -123,7 +118,7 @@ export async function getMyInfo(accessToken: string): Promise<{
     const response_data: MyInfoResponse = await response.json();
     return {
       userId: response_data.data.id,
-      isGuest: response_data.data.guest,
+      isGuest: response_data.data.isGuest,
     };
   } catch {
     return null;
