@@ -287,22 +287,9 @@ async function refreshTokens(session: SessionData): Promise<boolean> {
 
 ---
 
-## BE API 수정 권장 사항
+## BE API (현재 적용됨)
 
-BFF 방식에서도 현재 BE 로직(accessToken + refreshToken 검증)으로 동작 가능하지만,
-다음과 같이 수정하면 더 깔끔합니다:
-
-### 현재
-
-```
-POST /api/v1/auth/token/refresh
-{
-  "accessToken": "required (만료되어도 됨)",
-  "refreshToken": "required"
-}
-```
-
-### 권장
+토큰 갱신 API가 다음과 같이 변경되었습니다:
 
 ```
 POST /api/v1/auth/token/refresh
@@ -311,7 +298,7 @@ POST /api/v1/auth/token/refresh
 }
 ```
 
-**이유:**
+**장점:**
 
 - refreshToken JWT 자체에 userId가 포함되어 있음
 - accessToken 검증 없이도 userId 확인 가능

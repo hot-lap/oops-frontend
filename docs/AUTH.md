@@ -70,26 +70,23 @@ src/
 
 ## 쿠키 키
 
-| 키                   | 용도                    | 쿠키 유효기간           | 서버 토큰 만료           |
-| -------------------- | ----------------------- | ----------------------- | ------------------------ |
-| `oops_access_token`  | Access 토큰             | Guest: 영구, User: 90일 | Guest: 없음, User: 3시간 |
-| `oops_refresh_token` | Refresh 토큰 (User만)   | 90일                    | 90일                     |
-| `oops_user_type`     | `"guest"` 또는 `"user"` | Guest: 영구, User: 90일 | -                        |
+| 키                   | 용도                    | 쿠키 유효기간            | 서버 토큰 만료           |
+| -------------------- | ----------------------- | ------------------------ | ------------------------ |
+| `oops_access_token`  | Access 토큰             | Guest: 영구, User: 3시간 | Guest: 없음, User: 3시간 |
+| `oops_refresh_token` | Refresh 토큰 (User만)   | 90일                     | 90일                     |
+| `oops_user_type`     | `"guest"` 또는 `"user"` | Guest: 영구, User: 90일  | -                        |
 
 ### 쿠키 유효기간 설정 이유
 
-현재 BE에서 토큰 갱신 시 `accessToken + refreshToken` 둘 다 필요합니다.
-따라서 accessToken이 서버에서 만료(3시간)되어도 쿠키에는 남아있어야 갱신이 가능합니다.
+BE에서 토큰 갱신 시 `refreshToken`만 필요합니다.
+accessToken 쿠키 만료와 서버 만료 시간을 동일하게 3시간으로 설정합니다.
 
 ```
 현재 상황:
 - accessToken 서버 만료: 3시간
-- accessToken 쿠키 만료: 90일 (refreshToken과 동일)
-- 이유: BE에서 갱신 시 만료된 accessToken으로 userId 검증
-
-향후 계획 (BE 수정 후):
 - accessToken 쿠키 만료: 3시간 (서버와 동일)
-- BE에서 refreshToken만으로 갱신 가능하도록 수정 필요
+- refreshToken만으로 토큰 갱신 가능
+- Refresh Token Rotation: 갱신 시 refreshToken도 새로 발급됨
 ```
 
 자세한 내용은 [BFF_ARCHITECTURE.md](./BFF_ARCHITECTURE.md)를 참고하세요.
@@ -252,12 +249,12 @@ import {
 } from "@/lib/api/auth";
 ```
 
-| 함수                                       | 반환 타입                                | 설명                                    |
-| ------------------------------------------ | ---------------------------------------- | --------------------------------------- |
-| `getMyInfo(accessToken)`                   | `Promise<{ userId, type } \| null>`      | 토큰 유효성 검증 (유효하지 않으면 null) |
-| `createGuestUser()`                        | `Promise<{ accessToken, userId }>`       | Guest 토큰 발급                         |
-| `refreshTokens(accessToken, refreshToken)` | `Promise<{ accessToken, refreshToken }>` | 토큰 갱신                               |
-| `logout(accessToken)`                      | `Promise<void>`                          | 로그아웃                                |
+| 함수                          | 반환 타입                                | 설명                                    |
+| ----------------------------- | ---------------------------------------- | --------------------------------------- |
+| `getMyInfo(accessToken)`      | `Promise<{ userId, isGuest } \| null>`   | 토큰 유효성 검증 (유효하지 않으면 null) |
+| `createGuestUser()`           | `Promise<{ accessToken, userId }>`       | Guest 토큰 발급                         |
+| `refreshTokens(refreshToken)` | `Promise<{ accessToken, refreshToken }>` | 토큰 갱신                               |
+| `logout(accessToken)`         | `Promise<void>`                          | 로그아웃                                |
 
 ---
 
