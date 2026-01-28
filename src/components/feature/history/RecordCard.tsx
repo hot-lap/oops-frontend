@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Tag } from "./Tag";
+import { TagList } from "./Tag";
 
 interface RecordCardProps {
   id: number;
@@ -18,15 +18,7 @@ export function RecordCard({ id, date, title, tags }: RecordCardProps) {
             {title}
           </h3>
         </div>
-        {tags.length > 0 && (
-          <ul className="flex flex-wrap gap-2 pt-2" aria-label="태그 목록">
-            {tags.map((tag, index) => (
-              <li key={index}>
-                <Tag label={tag} />
-              </li>
-            ))}
-          </ul>
-        )}
+        <TagList tags={tags} className="pt-2" />
       </article>
     </Link>
   );

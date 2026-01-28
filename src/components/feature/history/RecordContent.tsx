@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Tag } from "./Tag";
+import { TagList } from "./Tag";
 
 interface RecordContentProps {
   emoji: string;
@@ -42,15 +42,7 @@ export function RecordContent({
       </blockquote>
 
       {/* Tags */}
-      {tags.length > 0 && (
-        <ul className="mt-4 flex w-full flex-wrap gap-2" aria-label="태그 목록">
-          {tags.map((tag, index) => (
-            <li key={index}>
-              <Tag label={tag} />
-            </li>
-          ))}
-        </ul>
-      )}
+      <TagList tags={tags} className="mt-4 w-full" />
 
       {/* Last Modified */}
       {lastModified && (
