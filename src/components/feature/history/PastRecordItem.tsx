@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import ChevronDownIcon from "@/assets/icons/chevron-down.svg";
 
@@ -19,7 +17,7 @@ export function PastRecordItem({ id, date, title }: PastRecordItemProps) {
             {title}
           </h3>
         </div>
-        <ChevronDownIcon className="" aria-hidden="true" />
+        <ChevronDownIcon aria-hidden="true" />
       </article>
     </Link>
   );
