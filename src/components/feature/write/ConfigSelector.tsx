@@ -1,29 +1,77 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useSuspensePostConfig } from "@/hooks/queries/usePosts";
+import { useState, useRef, useEffect, type ReactNode } from "react";
+import { X } from "lucide-react";
+
+// ============================================
+// Root Component
+// ============================================
 
 interface ConfigSelectorProps {
-  selectedCategories: string[];
-  customCategories: string[];
-  selectedCauses: string[];
-  selectedFeelings: string[];
-  onToggleCategory: (value: string, multipleSelectable: boolean) => void;
-  onAddCustomCategory: (value: string) => void;
-  onRemoveCustomCategory: (value: string) => void;
-  onToggleCause: (value: string, multipleSelectable: boolean) => void;
-  onToggleFeeling: (value: string, multipleSelectable: boolean) => void;
+  children: ReactNode;
+  className?: string;
 }
 
-function ChipButton({
-  label,
-  selected,
-  onClick,
-}: {
-  label: string;
-  selected: boolean;
-  onClick: () => void;
-}) {
+function ConfigSelectorRoot({ children, className = "" }: ConfigSelectorProps) {
+  return <div className={className}>{children}</div>;
+}
+
+// ============================================
+// Section Component
+// ============================================
+
+interface SectionProps {
+  title: string;
+  children: ReactNode;
+  className?: string;
+}
+
+function Section({ title, children, className = "" }: SectionProps) {
+  return (
+    <div
+      className={`bg-white p-5 rounded-[20px] outline outline-1 outline-stone-200 ${className}`}
+    >
+      <div className="justify-start text-stone-900 text-base font-semibold leading-6 mb-4">
+        {title}
+      </div>
+      <div className="flex flex-wrap gap-2">{children}</div>
+    </div>
+  );
+}
+
+interface ChipGroupProps {
+  items: string[];
+  selected: string[];
+  onToggle: (item: string) => void;
+}
+
+function ChipGroup({ items, selected, onToggle }: ChipGroupProps) {
+  return (
+    <>
+      {items.map((item) => (
+        <Chip
+          key={item}
+          selected={selected.includes(item)}
+          onClick={() => onToggle(item)}
+        >
+          {item}
+        </Chip>
+      ))}
+    </>
+  );
+}
+
+// ============================================
+// Chip Component
+// ============================================
+
+interface ChipProps {
+  children: ReactNode;
+  selected?: boolean;
+  onClick?: () => void;
+}
+
+function Chip({ children, selected = false, onClick }: ChipProps) {
   return (
     <button
       type="button"
@@ -34,43 +82,58 @@ function ChipButton({
           : "bg-white text-stone-900 outline outline-1 outline-offset-[-1px] outline-stone-200"
       }`}
     >
-      {label}
+      {children}
     </button>
   );
 }
 
-// 커스텀 카테고리 칩 (X 버튼 포함)
-function CustomCategoryChip({
-  label,
-  onRemove,
-}: {
-  label: string;
-  onRemove: () => void;
-}) {
+// ============================================
+// CustomChips Component
+// ============================================
+
+interface CustomChipsProps {
+  items: string[];
+  onRemove: (item: string) => void;
+}
+
+function CustomChips({ items, onRemove }: CustomChipsProps) {
   return (
-    <div className="flex items-center gap-1 px-3 py-2 rounded-full bg-stone-600 text-white text-[15px] leading-[1.6]">
-      <span>{label}</span>
-      <button
-        type="button"
-        onClick={onRemove}
-        className="w-4 h-4 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30"
-        aria-label={`${label} 삭제`}
-      >
-        <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-          <path
-            d="M1 1L7 7M7 1L1 7"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-      </button>
-    </div>
+    <>
+      {items.map((item) => (
+        <div
+          key={`custom-${item}`}
+          className="flex items-center gap-1 px-3 py-2 rounded-full bg-stone-600 text-white text-[15px] leading-[1.6]"
+        >
+          <span>{item}</span>
+          <button
+            type="button"
+            onClick={() => onRemove(item)}
+            className="w-4 h-4 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30"
+            aria-label={`${item} 삭제`}
+          >
+            <X size={8} strokeWidth={2} />
+          </button>
+        </div>
+      ))}
+    </>
   );
 }
 
-// 직접 입력 버튼 및 입력 필드
-function CustomCategoryInput({ onAdd }: { onAdd: (value: string) => void }) {
+// ============================================
+// CustomInput Component
+// ============================================
+
+interface CustomInputProps {
+  onAdd: (value: string) => void;
+  placeholder?: string;
+  buttonLabel?: string;
+}
+
+function CustomInput({
+  onAdd,
+  placeholder = "입력",
+  buttonLabel = "직접 입력",
+}: CustomInputProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -100,6 +163,12 @@ function CustomCategoryInput({ onAdd }: { onAdd: (value: string) => void }) {
     }
   };
 
+  const handleCancel = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setInputValue("");
+    setIsEditing(false);
+  };
+
   if (isEditing) {
     return (
       <div className="flex items-center gap-1 px-3 py-2 rounded-full outline outline-1 outline-offset-[-1px] outline-stone-600 bg-white">
@@ -110,27 +179,16 @@ function CustomCategoryInput({ onAdd }: { onAdd: (value: string) => void }) {
           onChange={(e) => setInputValue(e.target.value)}
           onBlur={handleComplete}
           onKeyDown={handleKeyDown}
-          placeholder="입력"
+          placeholder={placeholder}
           className="w-20 text-[15px] leading-[1.6] text-stone-900 outline-none bg-transparent"
         />
         <button
           type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            setInputValue("");
-            setIsEditing(false);
-          }}
+          onMouseDown={handleCancel}
           className="w-4 h-4 flex items-center justify-center rounded-full bg-stone-300 hover:bg-stone-400"
           aria-label="입력 취소"
         >
-          <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-            <path
-              d="M1 1L7 7M7 1L1 7"
-              stroke="white"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
+          <X size={8} strokeWidth={2} className="text-white" />
         </button>
       </div>
     );
@@ -142,97 +200,19 @@ function CustomCategoryInput({ onAdd }: { onAdd: (value: string) => void }) {
       onClick={() => setIsEditing(true)}
       className="px-3 py-2 rounded-full text-[15px] leading-[1.6] bg-white text-stone-900 outline outline-1 outline-offset-[-1px] outline-stone-200"
     >
-      직접 입력
+      {buttonLabel}
     </button>
   );
 }
 
-export function ConfigSelector({
-  selectedCategories,
-  customCategories,
-  selectedCauses,
-  selectedFeelings,
-  onToggleCategory,
-  onAddCustomCategory,
-  onRemoveCustomCategory,
-  onToggleCause,
-  onToggleFeeling,
-}: ConfigSelectorProps) {
-  const { data: config } = useSuspensePostConfig();
+// ============================================
+// Compound Component Export
+// ============================================
 
-  // "직접 입력"을 제외한 카테고리 목록
-  const regularCategories = config.category.categories.filter(
-    (item) => item !== "직접 입력",
-  );
-
-  return (
-    <>
-      {/* 유형 */}
-      <div className="bg-white p-5 rounded-[20px] outline outline-1 outline-stone-200">
-        <div className="justify-start text-stone-900 text-base font-semibold leading-6 mb-4">
-          유형
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {regularCategories.map((item) => (
-            <ChipButton
-              key={item}
-              label={item}
-              selected={selectedCategories.includes(item)}
-              onClick={() =>
-                onToggleCategory(item, config.category.multipleSelectable)
-              }
-            />
-          ))}
-          {/* 커스텀 카테고리 칩들 */}
-          {customCategories.map((item) => (
-            <CustomCategoryChip
-              key={`custom-${item}`}
-              label={item}
-              onRemove={() => onRemoveCustomCategory(item)}
-            />
-          ))}
-          {/* 직접 입력 버튼 */}
-          <CustomCategoryInput onAdd={onAddCustomCategory} />
-        </div>
-      </div>
-
-      {/* 원인 */}
-      <div className="bg-white p-5 rounded-[20px] outline outline-1 outline-stone-200">
-        <div className="justify-start text-stone-900 text-base font-semibold leading-6 mb-4">
-          원인
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {config.cause.causes.map((item) => (
-            <ChipButton
-              key={item}
-              label={item}
-              selected={selectedCauses.includes(item)}
-              onClick={() =>
-                onToggleCause(item, config.cause.multipleSelectable)
-              }
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* 감정 */}
-      <div className="bg-white p-5 mb-25 rounded-[20px] outline outline-1 outline-stone-200">
-        <div className="justify-start text-stone-900 text-base font-semibold leading-6 mb-4">
-          감정
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {config.feeling.feelings.map((item) => (
-            <ChipButton
-              key={item}
-              label={item}
-              selected={selectedFeelings.includes(item)}
-              onClick={() =>
-                onToggleFeeling(item, config.feeling.multipleSelectable)
-              }
-            />
-          ))}
-        </div>
-      </div>
-    </>
-  );
-}
+export const ConfigSelector = Object.assign(ConfigSelectorRoot, {
+  Section,
+  ChipGroup,
+  Chip,
+  CustomChips,
+  CustomInput,
+});
