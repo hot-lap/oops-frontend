@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deletePost } from "@/lib/api/posts";
+import { deletePost } from "@/lib/api";
 import { postKeys } from "@/hooks/queries/usePosts";
 
 interface UseDeletePostOptions {

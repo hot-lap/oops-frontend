@@ -12,7 +12,7 @@ import {
   getPost,
   getPostConfig,
   createPost,
-} from "@/lib/api/posts";
+} from "@/lib/api";
 import type { PostCreateRequest } from "@/types/api/posts";
 
 export const postKeys = {

@@ -12,7 +12,7 @@ import {
   refreshTokens as refreshTokensApi,
   logout as logoutApi,
   getMyInfo,
-} from "@/lib/api/auth";
+} from "@/lib/api";
 
 interface AuthState {
   // 상태
