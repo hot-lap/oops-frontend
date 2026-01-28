@@ -9,3 +9,22 @@ export function Tag({ label }: TagProps) {
     </span>
   );
 }
+
+interface TagListProps {
+  tags: string[];
+  className?: string;
+}
+
+export function TagList({ tags, className = "" }: TagListProps) {
+  if (tags.length === 0) return null;
+
+  return (
+    <ul className={`flex flex-wrap gap-2 ${className}`} aria-label="태그 목록">
+      {tags.map((tag, index) => (
+        <li key={index}>
+          <Tag label={tag} />
+        </li>
+      ))}
+    </ul>
+  );
+}

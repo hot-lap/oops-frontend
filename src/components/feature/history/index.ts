@@ -4,4 +4,4 @@ export { RecordCard } from "./RecordCard";
 export { RecordContent } from "./RecordContent";
 export { RecordDetail } from "./RecordDetail";
 export { SummaryCard } from "./SummaryCard";
-export { Tag } from "./Tag";
+export { Tag, TagList } from "./Tag";
