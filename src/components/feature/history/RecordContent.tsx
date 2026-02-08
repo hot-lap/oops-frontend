@@ -35,7 +35,7 @@ export function RecordContent({
       </h2>
 
       {/* Content */}
-      <blockquote className="mt-4 min-h-40 w-full rounded-[20px] border border-gray-200 bg-white p-5">
+      <blockquote className="mt-4 min-h-40 w-full rounded-[20px] border border-gray-200 bg-white p-5 max-h-[350px] overflow-y-auto">
         <p className="whitespace-pre-wrap text-[15px] font-medium leading-[1.6] text-gray-700">
           {content}
         </p>

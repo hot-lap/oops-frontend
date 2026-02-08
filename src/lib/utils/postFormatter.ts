@@ -48,10 +48,10 @@ function formatDate(dateString: string): string {
   return format(date, "M월 d일 (E)", { locale: ko });
 }
 
-// 날짜시간 포맷팅: "2025.12.18 (목) 23:09"
+// 날짜시간 포맷팅: "2025.12.18 (목)"
 function formatDateTime(dateString: string): string {
   const date = safeParseDateString(dateString);
-  return format(date, "yyyy.MM.dd (E) HH:mm", { locale: ko });
+  return format(date, "yyyy.MM.dd (E)", { locale: ko });
 }
 
 // 제목 추출: content의 첫 줄 또는 앞 50자

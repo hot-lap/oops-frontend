@@ -47,6 +47,7 @@ export function CalendarModal({
           weekday:
             "text-stone-400 font-normal text-[15px] leading-[160%] select-none text-center w-6",
           week: "flex justify-between items-center self-stretch mt-3",
+          today: "",
           day: "relative flex items-center justify-center size-6 p-0 text-center select-none",
           outside: "text-stone-300",
           disabled: "text-stone-300 opacity-50",
@@ -59,9 +60,9 @@ export function CalendarModal({
             "size-6 flex items-center justify-center text-stone-500 hover:bg-stone-100 rounded-full p-0 select-none",
         }}
         components={{
-          DayButton: ({ modifiers, ...props }) => (
+          DayButton: ({ modifiers, className: defaultClassName, ...props }) => (
             <button
-              className={`size-6 flex items-center justify-center rounded-full text-[15px] font-normal leading-[160%] transition-colors ${
+              className={`${defaultClassName} size-6 flex items-center justify-center rounded-full text-[15px] font-normal leading-[160%] transition-colors ${
                 modifiers.selected
                   ? "bg-stone-600 text-white"
                   : modifiers.disabled

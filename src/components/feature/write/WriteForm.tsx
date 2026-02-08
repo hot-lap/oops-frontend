@@ -197,6 +197,18 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
     });
   }, [showModal, hideModal, leavePage]);
 
+  // 새로고침 방지
+  useEffect(() => {
+    if (!isDirty) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
   // 브라우저 뒤로가기 감지
   useEffect(() => {
     // 폼이 수정되지 않았으면 히스토리 조작 불필요
@@ -349,6 +361,7 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
                 focus:outline-none focus:ring-0
                 ${errors.description ? "focus:border-red-500" : "focus:border-stone-200"}
               `}
+              maxLength={2000}
             />
             {errors.description && (
               <div className="text-red-500 text-sm mt-1">

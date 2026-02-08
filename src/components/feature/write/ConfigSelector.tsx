@@ -176,6 +176,7 @@ function CustomInput({
           ref={inputRef}
           type="text"
           value={inputValue}
+          maxLength={12}
           onChange={(e) => setInputValue(e.target.value)}
           onBlur={handleComplete}
           onKeyDown={handleKeyDown}
