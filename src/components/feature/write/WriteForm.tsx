@@ -1,14 +1,15 @@
 "use client";
 
 import { useForm, useWatch, Control, UseFormSetValue } from "react-hook-form";
-import { useState, useEffect, useCallback, Activity } from "react";
+import { useEffect, useCallback, Activity } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Calendar, AsyncBoundary, LeaveConfirmModal } from "@/components";
+import { AsyncBoundary, LeaveConfirmModal } from "@/components";
 import { EMOTION_SCORES } from "@/constants/constants";
 import { useModalStore } from "@/stores/useModalStore";
 import { useCreatePost, useSuspensePostConfig } from "@/hooks/queries/usePosts";
 import { useUpdatePost } from "@/hooks/mutations/useUpdatePost";
+import { CalendarModal } from "./CalendarModal";
 import { ConfigSelector } from "./ConfigSelector";
 import { ConfigSelectorSkeleton } from "./ConfigSelectorSkeleton";
 import type { PostResponse } from "@/types/api/posts";
@@ -172,7 +173,6 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
         },
   });
 
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const selectedDate = useWatch({ control, name: "date" });
   const score = useWatch({ control, name: "score" });
 
@@ -230,11 +230,19 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
     showLeaveConfirmModal();
   };
 
-  const handleSelectDate = (value: Date | undefined) => {
-    if (value) {
-      setValue("date", value);
-      setIsCalendarOpen(false);
-    }
+  const handleSelectDate = (date: Date) => {
+    setValue("date", date);
+  };
+
+  const showCalendarModal = () => {
+    showModal({
+      component: CalendarModal,
+      props: {
+        selectedDate: selectedDate ?? undefined,
+        onSelectDate: handleSelectDate,
+      },
+      closeOnDimmedClick: true,
+    });
   };
 
   const onSubmit = (data: FormData) => {
@@ -288,7 +296,7 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
 
           <button
             className="flex items-center gap-2 cursor-pointer"
-            onClick={() => setIsCalendarOpen(true)}
+            onClick={showCalendarModal}
           >
             <h2 className="text-md font-semibold">
               {selectedDate
@@ -308,27 +316,6 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
 
           <div className="w-4"></div>
         </div>
-
-        {/* 달력 모달 */}
-        {isCalendarOpen && (
-          <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50"
-            onClick={() => setIsCalendarOpen(false)}
-          >
-            <div
-              className="bg-white p-4 rounded-xl shadow-lg animate-fadeIn z-60"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Calendar
-                mode="single"
-                selected={selectedDate ?? undefined}
-                onSelect={handleSelectDate}
-                disabled={{ after: new Date() }}
-                className="rounded-lg"
-              />
-            </div>
-          </div>
-        )}
 
         {/* 캐릭터 - Activity로 모든 이미지 프리로드 */}
         <div className="flex justify-center mt-10 mb-4">
