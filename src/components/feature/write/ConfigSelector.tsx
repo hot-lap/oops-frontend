@@ -104,7 +104,7 @@ function CustomChips({ items, onRemove }: CustomChipsProps) {
           key={`custom-${item}`}
           className="flex items-center gap-1 px-3 py-2 rounded-full bg-stone-600 text-white text-[15px] leading-[1.6]"
         >
-          <span>{item}</span>
+          <span>#{item}</span>
           <button
             type="button"
             onClick={() => onRemove(item)}
@@ -171,7 +171,10 @@ function CustomInput({
 
   if (isEditing) {
     return (
-      <div className="flex items-center gap-1 px-3 py-2 rounded-full outline outline-1 outline-offset-[-1px] outline-stone-600 bg-white">
+      <div className="flex items-center gap-1 px-3 py-2 rounded-full bg-stone-600">
+        <span className="text-[15px] leading-[1.6] text-white select-none">
+          #
+        </span>
         <input
           ref={inputRef}
           type="text"
@@ -181,12 +184,12 @@ function CustomInput({
           onBlur={handleComplete}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-20 text-[15px] leading-[1.6] text-stone-900 outline-none bg-transparent"
+          className="w-20 text-[15px] leading-[1.6] text-white placeholder-white/50 caret-white outline-none bg-transparent"
         />
         <button
           type="button"
           onMouseDown={handleCancel}
-          className="w-4 h-4 flex items-center justify-center rounded-full bg-stone-300 hover:bg-stone-400"
+          className="w-4 h-4 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30"
           aria-label="입력 취소"
         >
           <X size={8} strokeWidth={2} className="text-white" />

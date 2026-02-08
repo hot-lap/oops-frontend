@@ -4,6 +4,7 @@ import { useForm, useWatch, Control, UseFormSetValue } from "react-hook-form";
 import { useEffect, useCallback, Activity } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { AsyncBoundary, LeaveConfirmModal } from "@/components";
 import { EMOTION_SCORES } from "@/constants/constants";
 import { useModalStore } from "@/stores/useModalStore";
@@ -71,6 +72,10 @@ function ConfigSections({ control, setValue }: ConfigSectionsProps) {
 
   // 커스텀 카테고리 추가
   const handleAddCustomCategory = (value: string) => {
+    if (customCategories.length >= 3) {
+      toast.error("직접 입력은 최대 3개까지 가능해요.");
+      return;
+    }
     if (!customCategories.includes(value)) {
       setValue("customCategories", [...customCategories, value]);
     }
