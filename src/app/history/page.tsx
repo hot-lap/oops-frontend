@@ -10,9 +10,11 @@ import type { FormattedPost } from "@/lib/utils/postFormatter";
 import { formatPostResponses, formatPosts } from "@/lib/utils/postFormatter";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { redirectToGoogleOAuth } from "@/lib/oauth/google";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { deleteAccount } from "@/lib/api";
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -31,8 +33,26 @@ export default function HistoryPage() {
 
 // 실제 데이터를 fetch하고 렌더링하는 컴포넌트
 function HistoryContent() {
+  const router = useRouter();
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const { userType } = useAuthStore();
+  const { userType, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success("로그아웃 되었습니다.");
+    router.replace("/");
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteAccount();
+      await logout();
+      toast.success("탈퇴가 완료되었습니다.");
+      router.replace("/");
+    } catch {
+      // apiClient의 beforeError에서 toast.error 처리됨
+    }
+  };
 
   // Suspense 버전 - data는 항상 존재
   const { data: weekData } = useSuspenseWeekPosts();
@@ -66,8 +86,6 @@ function HistoryContent() {
     );
   }, [effectiveSelectedId, records, pastRecords]);
 
-  console.log(userType);
-
   const summary = weekData.summary;
 
   return (
@@ -80,11 +98,7 @@ function HistoryContent() {
             <h2 id="recent-records-title" className="sr-only">
               최근 기록
             </h2>
-            {records.length === 0 ? (
-              <p className="py-8 text-center text-gray-500">
-                이번주 기록이 없습니다.
-              </p>
-            ) : (
+            {records.length > 0 && (
               <ul className="flex w-full flex-col items-center gap-2">
                 {records.map((record) => (
                   <li key={record.id} className="w-full">
@@ -122,6 +136,7 @@ function HistoryContent() {
           {/* Summary */}
           <div className="mt-2 w-full">
             <SummaryCard
+              isEmpty={records.length === 0}
               recordCount={records.length}
               topCategory={summary.category ?? null}
             />
@@ -186,18 +201,31 @@ function HistoryContent() {
                 ))}
               </ul>
 
-              {/* Load More Button */}
-              {hasNextPage && (
-                <div className="mt-4 flex w-full justify-center">
-                  <button
-                    onClick={() => fetchNextPage()}
-                    disabled={isFetchingNextPage}
-                    className="text-[13px] font-medium text-gray-500 underline disabled:opacity-50"
-                  >
-                    {isFetchingNextPage ? "로딩 중..." : "더 보기"}
-                  </button>
-                </div>
-              )}
+              {/* Infinite Scroll Trigger */}
+              <InfiniteScrollTrigger
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                fetchNextPage={fetchNextPage}
+              />
+            </section>
+          )}
+          {userType === "user" && (
+            <section>
+              <div className="w-full h-[64px]" />
+              <div className="flex gap-4 text-gray-400 text-[13px] font-medium leading-[1.6] underline ">
+                <button
+                  onClick={handleLogout}
+                  className="hover:text-gray-700 transition-colors"
+                >
+                  로그아웃
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  className="hover:text-gray-700 transition-colors"
+                >
+                  탈퇴하기
+                </button>
+              </div>
             </section>
           )}
         </div>
@@ -270,6 +298,46 @@ function PastRecordContent({ date, title }: { date: string; title: string }) {
       </div>
       <ChevronDownIcon className="size-[18px]" aria-hidden="true" />
     </article>
+  );
+}
+
+function InfiniteScrollTrigger({
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage,
+}: {
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  fetchNextPage: () => void;
+}) {
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  const handleIntersect = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage],
+  );
+
+  useEffect(() => {
+    const el = triggerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(handleIntersect, {
+      rootMargin: "100px",
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [handleIntersect]);
+
+  return (
+    <div ref={triggerRef} className="mt-4 flex w-full justify-center">
+      {isFetchingNextPage && (
+        <div className="animate-spin rounded-full size-5 border-t-2 border-b-2 border-gray-400" />
+      )}
+    </div>
   );
 }
 

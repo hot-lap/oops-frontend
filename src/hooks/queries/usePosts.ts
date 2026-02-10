@@ -43,7 +43,7 @@ export function useSuspenseWeekPosts() {
 // 게시글 페이징 조회 - 무한 스크롤 (Suspense)
 export function useSuspenseInfinitePosts(
   includeThisWeek: boolean = false,
-  size: number = 10,
+  size: number = 20,
 ) {
   return useSuspenseInfiniteQuery({
     queryKey: postKeys.list(includeThisWeek),
