@@ -2,6 +2,7 @@ import { create } from "zustand";
 import {
   getAccessToken,
   getRefreshToken,
+  getUserType,
   saveGuestToken,
   saveUserTokens,
   clearTokens,
@@ -40,10 +41,13 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => {
   /** myInfo로 인증 상태 설정 */
   const setAuthState = (myInfo: MyInfo) => {
+    // 클라이언트가 관리하는 쿠키를 primary source로 사용
+    // (서버 API의 isGuest 응답이 부정확할 수 있음)
+    const cookieUserType = getUserType();
     set({
       isInitialized: true,
       isLoading: false,
-      userType: myInfo.isGuest ? "guest" : "user",
+      userType: cookieUserType ?? (myInfo.isGuest ? "guest" : "user"),
       userId: myInfo.userId,
     });
   };
