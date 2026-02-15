@@ -4,12 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { oauthSignup } from "@/lib/api";
-import { saveUserTokens, clearTokens } from "@/lib/auth/token";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function GoogleCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  const { loginAsUser } = useAuthStore();
   // React 18 Strict Mode에서 useEffect 중복 실행 방지
   const isCalledRef = useRef(false);
 
@@ -35,7 +36,7 @@ export default function GoogleCallbackPage() {
       }
 
       try {
-        // OAuth 회원가입/로그인 요청
+        // OAuth 회원가입/로그인 요청 (BFF 경유)
         const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI;
         if (!redirectUri) {
           setError("Redirect URI가 설정되지 않았습니다.");
@@ -44,12 +45,8 @@ export default function GoogleCallbackPage() {
 
         const response = await oauthSignup("google", code, redirectUri);
 
-        // 기존 Guest 토큰 삭제 후 User 토큰 저장
-        clearTokens();
-        saveUserTokens(
-          response.tokens.accessToken,
-          response.tokens.refreshToken,
-        );
+        // store 상태 업데이트 (토큰은 서버 세션에 저장됨)
+        loginAsUser(response.userId);
 
         // 메인 페이지로 이동
         router.replace("/");
@@ -60,7 +57,7 @@ export default function GoogleCallbackPage() {
     };
 
     handleCallback();
-  }, [searchParams, router]);
+  }, [searchParams, router, loginAsUser]);
 
   // 에러 발생 시
   if (error) {

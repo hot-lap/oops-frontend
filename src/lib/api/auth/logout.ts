@@ -1,18 +1,14 @@
 import ky from "ky";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.oops.rest";
+interface LogoutResponse {
+  userId: number;
+  userType: "guest";
+}
 
 /**
- * 로그아웃
+ * 로그아웃 (BFF 경유)
+ * - 서버에서 로그아웃 처리 후 Guest 세션 재생성
  */
-export async function logout(accessToken: string): Promise<void> {
-  try {
-    await ky.post(`${API_BASE_URL}/api/v1/auth/logout`, {
-      headers: {
-        "X-OOPS-AUTH-TOKEN": accessToken,
-      },
-    });
-  } catch {
-    // 로그아웃은 실패해도 클라이언트 토큰은 삭제
-  }
+export async function logout(): Promise<LogoutResponse> {
+  return ky.post("/api/auth/logout").json<LogoutResponse>();
 }

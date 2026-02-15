@@ -14,7 +14,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { redirectToGoogleOAuth } from "@/lib/oauth/google";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { deleteAccount } from "@/lib/api";
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -35,7 +34,7 @@ export default function HistoryPage() {
 function HistoryContent() {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const { userType, logout } = useAuthStore();
+  const { userType, logout, deleteAccount } = useAuthStore();
 
   const handleLogout = async () => {
     await logout();
@@ -46,11 +45,10 @@ function HistoryContent() {
   const handleDeleteAccount = async () => {
     try {
       await deleteAccount();
-      await logout();
       toast.success("탈퇴가 완료되었습니다.");
       router.replace("/");
     } catch {
-      // apiClient의 beforeError에서 toast.error 처리됨
+      // BFF에서 에러 처리됨
     }
   };
 

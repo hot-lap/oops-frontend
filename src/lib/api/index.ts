@@ -2,13 +2,7 @@
 export { apiClient, type ApiResponse } from "./client";
 
 // Auth
-export {
-  createGuestUser,
-  refreshTokens,
-  getMyInfo,
-  logout,
-  deleteAccount,
-} from "./auth";
+export { createGuestUser, getMyInfo, logout, deleteAccount } from "./auth";
 
 // OAuth
 export {
