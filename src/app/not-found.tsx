@@ -5,8 +5,8 @@ import { GNB } from "@/components";
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-stone-50">
-      <div className="w-full max-w-[696px]">
-        <GNB />
+      <div className="w-full max-w-[684px]">
+        <GNB className="hidden" isVisibleLoginButton={false} />
       </div>
 
       <div className="mt-[120px] flex flex-col items-center">

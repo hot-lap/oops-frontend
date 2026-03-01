@@ -22,7 +22,7 @@ export default function Header({ title, rightActions, onBack }: HeaderProps) {
   };
 
   return (
-    <header className="flex h-14 w-full items-center justify-between px-4 py-4 max-w-[696px] mx-auto">
+    <header className="flex h-14 w-full items-center justify-between px-4 py-4 max-w-[684px] mx-auto">
       <button
         onClick={handleBack}
         aria-label="뒤로 가기"
