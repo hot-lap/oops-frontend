@@ -185,7 +185,7 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
 
   // 페이지 이탈 처리
   const leavePage = useCallback(() => {
-    router.push("/");
+    router.back();
   }, [router]);
 
   // 이탈 확인 모달 표시
@@ -281,19 +281,26 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
       postedAt: data.date?.toISOString(),
     };
 
-    const onSuccess = () => {
-      // replace를 사용하여 히스토리에서 작성 페이지 제거
-      // 뒤로가기 시 작성 페이지로 돌아가지 않음
-      const redirectTo = isEditMode ? `/history/${postId}` : "/";
-      router.replace(
-        `/write/success?redirectTo=${encodeURIComponent(redirectTo)}`,
-      );
-    };
-
     if (isEditMode) {
-      updatePostMutation.mutate({ postId, data: postData }, { onSuccess });
+      updatePostMutation.mutate(
+        { postId, data: postData },
+        {
+          onSuccess: () => {
+            toast.success("기록이 수정되었어요.");
+            // replace로 수정 페이지를 상세 페이지로 교체
+            // 뒤로가기 시 수정 페이지가 아닌 리스트 페이지로 이동
+            router.replace(`/history/${postId}`);
+          },
+        },
+      );
     } else {
-      createPostMutation.mutate(postData, { onSuccess });
+      createPostMutation.mutate(postData, {
+        onSuccess: () => {
+          router.replace(
+            `/write/success?redirectTo=${encodeURIComponent("/")}`,
+          );
+        },
+      });
     }
   };
 
