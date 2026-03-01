@@ -412,27 +412,25 @@ export function WriteForm({ postId, initialData }: WriteFormProps = {}) {
       </div>
 
       {/* 저장 버튼 */}
-      <div className="w-full flex justify-center fixed bottom-5 px-6">
+      <div className="w-full max-w-[732px] px-6 mx-auto flex justify-center fixed bottom-0 bg-stone-50 h-[68px] pb-5">
         <button
           onClick={handleSubmit(onSubmit)}
           disabled={
             createPostMutation.isPending || updatePostMutation.isPending
           }
-          className={`w-full max-w-[684px] py-4 rounded-xl ${
+          className={`text-[15px] leading-[1.2] font-semibold w-full max-w-[684px] flex items-center justify-center rounded-xl ${
             createPostMutation.isPending || updatePostMutation.isPending
               ? "bg-stone-300 cursor-not-allowed"
               : "bg-stone-600"
           }`}
         >
           {createPostMutation.isPending || updatePostMutation.isPending ? (
-            <span className="flex items-center justify-center gap-2 text-stone-500 font-semibold">
+            <span className="flex items-center justify-center gap-2 text-stone-500">
               <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-stone-500" />
               저장 중입니다.
             </span>
           ) : (
-            <span className="text-white font-semibold">
-              {isEditMode ? "수정" : "저장"}
-            </span>
+            <span className="text-white">{isEditMode ? "수정" : "저장"}</span>
           )}
         </button>
       </div>

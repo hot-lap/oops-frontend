@@ -24,9 +24,14 @@
 ```
 src/
 ├── app/                      # Next.js App Router (라우팅)
-│   ├── (auth)/               # Route Group - 인증 관련 페이지
-│   │   ├── login/
-│   │   └── signup/
+│   ├── api/                  # BFF API 라우트
+│   │   ├── auth/             # 인증 관련 BFF 엔드포인트
+│   │   │   ├── delete-account/
+│   │   │   ├── guest/
+│   │   │   ├── logout/
+│   │   │   ├── me/
+│   │   │   └── oauth/[provider]/
+│   │   └── proxy/[...path]/  # API 프록시 (세션 토큰 자동 첨부)
 │   ├── auth/                 # OAuth 콜백 페이지
 │   │   └── google/
 │   │       └── callback/
@@ -42,6 +47,7 @@ src/
 │   │   │   └── page.tsx
 │   │   └── page.tsx          # 기록 작성
 │   ├── layout.tsx            # 루트 레이아웃
+│   ├── not-found.tsx         # 404 페이지
 │   ├── page.tsx              # 홈 페이지
 │   ├── providers.tsx         # 전역 Provider 설정
 │   └── globals.css
@@ -53,14 +59,16 @@ src/
 │   │   ├── AsyncBoundary.tsx # Suspense + ErrorBoundary
 │   │   ├── AuthProvider.tsx  # 인증 초기화
 │   │   ├── ClientOnly.tsx
-│   │   ├── Header.tsx
+│   │   ├── GNB.tsx           # 글로벌 네비게이션 바 (홈, 404)
+│   │   ├── Header.tsx        # 서브 페이지 헤더 (뒤로가기 + 제목)
 │   │   ├── LeaveConfirmModal.tsx  # 페이지 이탈 확인 모달
 │   │   └── Modal.tsx
 │   ├── ui/                   # 기본 UI 컴포넌트 (shadcn 스타일)
 │   │   ├── index.ts          # Barrel export
 │   │   ├── button.tsx
 │   │   ├── calendar.tsx
-│   │   └── skeleton.tsx      # 로딩 스켈레톤
+│   │   ├── skeleton.tsx      # 로딩 스켈레톤
+│   │   └── toast.tsx         # 커스텀 토스트 (react-hot-toast 기반)
 │   └── feature/              # 도메인별 기능 컴포넌트
 │       ├── index.ts          # Barrel export
 │       ├── RecentPosts.tsx   # 홈 - 최근 기록
@@ -69,11 +77,12 @@ src/
 │       │   ├── DeleteConfirmModal.tsx
 │       │   ├── PastRecordItem.tsx
 │       │   ├── RecordCard.tsx
-│       │   ├── RecordDetail.tsx
+│       │   ├── RecordContent.tsx  # 기록 상세 콘텐츠
 │       │   ├── SummaryCard.tsx
 │       │   └── Tag.tsx
 │       └── write/            # 기록 작성 관련
 │           ├── index.ts
+│           ├── CalendarModal.tsx
 │           ├── ConfigSelector.tsx
 │           ├── ConfigSelectorSkeleton.tsx
 │           └── WriteForm.tsx
@@ -85,21 +94,24 @@ src/
 │   ├── mutations/            # React Query 훅 (수정 + 삭제)
 │   │   ├── useUpdatePost.ts  # 게시글 수정 훅
 │   │   └── useDeletePost.ts  # 게시글 삭제 훅
+│   ├── useHomeTitle.ts       # 홈 타이틀 훅
 │   └── useLoadingTitle.ts    # 로딩 타이틀 훅
 │
 ├── lib/                      # 유틸리티, 설정
-│   ├── api/                  # API 관련
-│   │   ├── client.ts         # API 클라이언트
-│   │   ├── auth.ts           # 인증 API
-│   │   ├── home.ts           # 홈 API
-│   │   ├── oauth.ts          # OAuth API (회원가입/로그인)
-│   │   └── posts.ts          # 게시글 API
-│   ├── auth/                 # 인증 유틸리티
-│   │   └── token.ts          # 토큰 관리
+│   ├── api/                  # API 관련 (도메인별 하위 폴더)
+│   │   ├── index.ts          # Barrel export
+│   │   ├── client.ts         # ky 기반 API 클라이언트
+│   │   ├── server.ts         # 서버 전용 API 클라이언트
+│   │   ├── auth/             # 인증 API
+│   │   ├── home/             # 홈 API
+│   │   ├── oauth/            # OAuth API (회원가입/로그인)
+│   │   └── posts/            # 게시글 API (CRUD)
 │   ├── oauth/                # OAuth 유틸리티
 │   │   └── google.ts         # Google OAuth URL 생성
 │   ├── utils/                # 헬퍼 함수
 │   │   └── postFormatter.ts  # API → UI 데이터 변환
+│   ├── utils.ts              # 범용 유틸리티 (cn 등)
+│   ├── session.ts            # iron-session 설정
 │   └── queryClient.ts        # React Query 설정
 │
 ├── types/                    # 타입 정의
@@ -142,6 +154,7 @@ src/
     {children}
   </AuthProvider>
   <ModalRenderer />    {/* 전역 모달 */}
+  <Toaster />          {/* 커스텀 토스트 알림 */}
 </QueryClientProvider>
 ```
 
@@ -169,15 +182,16 @@ function Content() {
 }
 ```
 
-### 3. 인증 패턴
+### 3. 인증 패턴 (BFF)
 
-자세한 내용은 [AUTH.md](./AUTH.md)를 참고하세요.
+자세한 내용은 [AUTH.md](./AUTH.md) 및 [BFF_ARCHITECTURE.md](./BFF_ARCHITECTURE.md)를 참고하세요.
 
 ```tsx
-// 앱 시작 시 AuthProvider가 자동으로:
-// 1. 기존 토큰 확인
-// 2. 없으면 Guest 토큰 발급
-// 3. API 호출 시 자동으로 토큰 포함
+// BFF 아키텍처:
+// 1. 토큰은 서버 세션(iron-session 암호화 쿠키)에 저장
+// 2. 클라이언트는 /api/proxy/... 를 통해 API 호출
+// 3. BFF가 세션에서 토큰을 꺼내 BE API에 자동 첨부
+// 4. 클라이언트에 토큰이 노출되지 않음 (보안 강화)
 ```
 
 ### 4. 상태 관리 전략
@@ -193,11 +207,12 @@ function Content() {
 
 ## 관련 문서
 
-| 문서                                                         | 설명                   |
-| ------------------------------------------------------------ | ---------------------- |
-| [API.md](./API.md)                                           | API 엔드포인트 명세    |
-| [AUTH.md](./AUTH.md)                                         | 인증 시스템 상세       |
-| [DATA_FETCHING_CONVENTION.md](./DATA_FETCHING_CONVENTION.md) | 데이터 fetching 컨벤션 |
+| 문서                                                         | 설명                      |
+| ------------------------------------------------------------ | ------------------------- |
+| [API.md](./API.md)                                           | API 엔드포인트 명세       |
+| [AUTH.md](./AUTH.md)                                         | 인증 시스템 상세          |
+| [BFF_ARCHITECTURE.md](./BFF_ARCHITECTURE.md)                 | BFF 아키텍처 및 세션 관리 |
+| [DATA_FETCHING_CONVENTION.md](./DATA_FETCHING_CONVENTION.md) | 데이터 fetching 컨벤션    |
 
 ---
 
@@ -205,13 +220,20 @@ function Content() {
 
 ```
 src/components/
-├── common/   범용 UI (Header, Modal, AsyncBoundary 등)
-├── ui/       기본 UI (Button, Calendar, Skeleton 등)
+├── common/   범용 UI (GNB, Header, Modal, AsyncBoundary 등)
+├── ui/       기본 UI (Button, Calendar, Skeleton, Toast 등)
 └── feature/  도메인별 기능 컴포넌트
     ├── history/   기록 조회 관련
     ├── write/     기록 작성 관련
     └── *.tsx      공통 feature (RecentPosts 등)
 ```
+
+**GNB vs Header 사용 기준:**
+
+| 컴포넌트 | 용도                        | 사용 페이지        |
+| -------- | --------------------------- | ------------------ |
+| `GNB`    | Oops! 로고 + 로그인 버튼    | 홈(`/`), 404       |
+| `Header` | 뒤로가기 + 제목 + 우측 액션 | history, detail 등 |
 
 **모든 feature 컴포넌트는 `src/components/feature/`에 도메인별로 배치합니다.**
 페이지 전용 컴포넌트도 `feature/[domain]/`에 위치시켜 일관된 import 경로를 유지합니다.
@@ -269,16 +291,18 @@ import { LocalComponent } from "./components";
 
 ## 환경 변수
 
-| 변수                              | 설명                      | 예시                                         |
-| --------------------------------- | ------------------------- | -------------------------------------------- |
-| `NEXT_PUBLIC_API_URL`             | API 서버 URL              | `https://api.oops.rest`                      |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID`    | Google OAuth Client ID    | `xxxxx.apps.googleusercontent.com`           |
-| `NEXT_PUBLIC_GOOGLE_REDIRECT_URI` | Google OAuth Redirect URI | `http://localhost:3000/auth/google/callback` |
+| 변수                              | 공개 여부  | 설명                               | 예시                                         |
+| --------------------------------- | ---------- | ---------------------------------- | -------------------------------------------- |
+| `SESSION_SECRET`                  | 서버 전용  | iron-session 암호화 키 (32자 이상) | `openssl rand -base64 32` 으로 생성          |
+| `API_URL`                         | 서버 전용  | BE API 서버 URL (BFF 프록시용)     | `https://api.oops.rest`                      |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID`    | 클라이언트 | Google OAuth Client ID             | `xxxxx.apps.googleusercontent.com`           |
+| `NEXT_PUBLIC_GOOGLE_REDIRECT_URI` | 클라이언트 | Google OAuth Redirect URI          | `http://localhost:3000/auth/google/callback` |
 
-### 로컬 개발 환경 (`.env`)
+### 로컬 개발 환경 (`.env.local`)
 
 ```
-NEXT_PUBLIC_API_URL=https://api.oops.rest
+SESSION_SECRET=your-session-secret-at-least-32-characters-long
+API_URL=https://api.oops.rest
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
 NEXT_PUBLIC_GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 ```
@@ -288,12 +312,16 @@ NEXT_PUBLIC_GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 Vercel Dashboard > Project Settings > Environment Variables에서 설정:
 
 ```
-NEXT_PUBLIC_API_URL=https://api.oops.rest
+SESSION_SECRET=<secure-random-value>
+API_URL=https://api.oops.rest
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
 NEXT_PUBLIC_GOOGLE_REDIRECT_URI=https://oops-frontend.vercel.app/auth/google/callback
 ```
 
-**중요:** Google Cloud Console에서도 해당 Redirect URI를 등록해야 합니다.
+**중요:**
+
+- `SESSION_SECRET`은 프로덕션에서 반드시 안전한 랜덤 값을 사용해야 합니다.
+- Google Cloud Console에서도 해당 Redirect URI를 등록해야 합니다.
 
 ---
 
@@ -304,8 +332,11 @@ NEXT_PUBLIC_GOOGLE_REDIRECT_URI=https://oops-frontend.vercel.app/auth/google/cal
   "@tanstack/react-query": "서버 상태 관리",
   "zustand": "클라이언트 전역 상태",
   "react-hook-form": "폼 관리",
+  "iron-session": "BFF 세션 관리 (암호화 쿠키)",
+  "ky": "HTTP 클라이언트",
   "date-fns": "날짜 포맷팅",
   "framer-motion": "애니메이션",
+  "react-hot-toast": "토스트 알림 (커스텀 UI 래핑)",
   "clsx": "조건부 클래스",
   "tailwind-merge": "Tailwind 클래스 병합"
 }
