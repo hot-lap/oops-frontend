@@ -28,7 +28,6 @@ export {
   PastRecordItem,
   RecordCard,
   RecordContent,
-  RecordDetail,
   SummaryCard,
   Tag,
   // Write

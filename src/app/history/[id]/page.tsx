@@ -39,15 +39,10 @@ function HistoryDetailContent({ postId }: { postId: number }) {
   const { data: postData } = useSuspensePost(postId);
   const record = formatPostResponse(postData);
 
-  const { mutate: deletePost, isPending } = useDeletePost({
-    onSuccess: () => {
-      hideModal(true);
-      router.replace("/history");
-    },
-  });
+  const { mutate: deletePost, isPending } = useDeletePost();
 
   const handleBack = () => {
-    router.push("/history");
+    router.replace("/history");
   };
 
   const handleEdit = () => {
@@ -58,7 +53,18 @@ function HistoryDetailContent({ postId }: { postId: number }) {
     showModal({
       component: DeleteConfirmModal,
       props: {
-        onConfirm: () => deletePost(postId),
+        onConfirm: () => {
+          deletePost(postId);
+          hideModal(true);
+          // modal-state → history.back() → /history/18 → router.replace → /history
+          // popstate 이벤트 후 replace하여 삭제된 상세 페이지를 히스토리에서 제거
+          window.addEventListener(
+            "popstate",
+            () => router.replace("/history"),
+            { once: true },
+          );
+          window.history.back();
+        },
         isPending,
       },
     });

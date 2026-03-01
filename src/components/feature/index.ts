@@ -7,7 +7,6 @@ export {
   PastRecordItem,
   RecordCard,
   RecordContent,
-  RecordDetail,
   SummaryCard,
   Tag,
 } from "./history";
