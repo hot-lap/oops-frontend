@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useHomeTitle } from "@/hooks/useHomeTitle";
 import { useState, Activity } from "react";
-import { AsyncBoundary, Skeleton, RecentPosts } from "@/components";
+import { AsyncBoundary, Skeleton, RecentPosts, GNB } from "@/components";
 
 export default function Home() {
   const router = useRouter();
@@ -16,10 +16,8 @@ export default function Home() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-stone-50">
       <div className="w-full max-w-[684px] min-h-screen flex flex-col items-center overflow-hidden">
-        {/* Logo Header */}
-        <div className="h-14 flex justify-center items-center w-full p-4">
-          <Image src="/icons/OopsLogo.svg" alt="logo" width={50} height={24} />
-        </div>
+        {/* GNB */}
+        <GNB />
 
         {/* Main Content */}
         <div className="flex flex-col items-center gap-8 mt-14">

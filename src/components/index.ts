@@ -4,6 +4,7 @@ export {
   ErrorBoundary,
   AuthProvider,
   ClientOnly,
+  GNB,
   Header,
   LeaveConfirmModal,
   ModalRenderer,
