@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useHomeTitle } from "@/hooks/useHomeTitle";
-import { useState, Activity } from "react";
+import { useState } from "react";
 import { AsyncBoundary, Skeleton, RecentPosts, GNB } from "@/components";
 
 export default function Home() {
@@ -23,28 +23,26 @@ export default function Home() {
         <div className="flex flex-col items-center gap-8 mt-14">
           {/* Emotion Image (hover 상태에 따라 변경) */}
           <div
-            className="rounded-full flex justify-center items-center"
+            className="relative flex h-[180px] w-[200px] items-center justify-center"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <Activity mode={isHovered ? "visible" : "hidden"}>
-              <Image
-                src="/icons/homehover.svg"
-                alt="hover"
-                width={200}
-                height={180}
-                loading="eager"
-              />
-            </Activity>
-            <Activity mode={!isHovered ? "visible" : "hidden"}>
-              <Image
-                src="/icons/emotion1.svg"
-                alt="default"
-                width={180}
-                height={180}
-                loading="eager"
-              />
-            </Activity>
+            <Image
+              src="/icons/homehover.svg"
+              alt=""
+              width={200}
+              height={180}
+              unoptimized
+              className={`absolute transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}
+            />
+            <Image
+              src="/icons/emotion1.svg"
+              alt=""
+              width={180}
+              height={180}
+              unoptimized
+              className={`transition-opacity duration-200 ${isHovered ? "opacity-0" : "opacity-100"}`}
+            />
           </div>
 
           {/* Title Text */}
