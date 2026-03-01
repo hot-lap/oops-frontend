@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useHomeTitle } from "@/hooks/useHomeTitle";
-import { useState } from "react";
+import { useState, type PointerEvent } from "react";
 import { AsyncBoundary, Skeleton, RecentPosts, GNB } from "@/components";
 
 export default function Home() {
@@ -12,6 +12,25 @@ export default function Home() {
   const [isHovered, setIsHovered] = useState(false);
 
   const goToPage = () => router.push("/write");
+
+  // 데스크탑: hover, 모바일: 꾹 누르는 동안만 hover
+  const hoverHandlers = {
+    onPointerEnter: (e: PointerEvent) => {
+      if (e.pointerType === "mouse") setIsHovered(true);
+    },
+    onPointerLeave: (e: PointerEvent) => {
+      if (e.pointerType === "mouse") setIsHovered(false);
+    },
+    onPointerDown: (e: PointerEvent) => {
+      if (e.pointerType === "touch") setIsHovered(true);
+    },
+    onPointerUp: (e: PointerEvent) => {
+      if (e.pointerType === "touch") setIsHovered(false);
+    },
+    onPointerCancel: (e: PointerEvent) => {
+      if (e.pointerType === "touch") setIsHovered(false);
+    },
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-stone-50">
@@ -24,8 +43,7 @@ export default function Home() {
           {/* Emotion Image (hover 상태에 따라 변경) */}
           <div
             className="relative flex h-[180px] w-[200px] items-center justify-center"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            {...hoverHandlers}
           >
             <Image
               src="/icons/homehover.svg"
@@ -58,8 +76,7 @@ export default function Home() {
           {/* Button (hover시 Emotion Image변경) */}
           <button
             onClick={goToPage}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            {...hoverHandlers}
             className="cursor-pointer w-40 h-12 bg-stone-600 rounded-full text-white text-base font-semibold flex justify-center items-center"
           >
             기록하기
