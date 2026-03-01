@@ -1,5 +1,5 @@
 import ky, { type KyInstance } from "ky";
-import toast from "react-hot-toast";
+import { toast } from "@/components/ui/toast";
 
 /**
  * ky 기반 API 클라이언트

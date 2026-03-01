@@ -4,7 +4,7 @@ import { useForm, useWatch, Control, UseFormSetValue } from "react-hook-form";
 import { useEffect, useCallback, Activity } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { toast } from "@/components/ui/toast";
 import { AsyncBoundary, LeaveConfirmModal } from "@/components";
 import { EMOTION_SCORES } from "@/constants/constants";
 import { useModalStore } from "@/stores/useModalStore";

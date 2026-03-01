@@ -11,7 +11,7 @@ import { formatPostResponses, formatPosts } from "@/lib/utils/postFormatter";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "@/components/ui/toast";
 import { redirectToGoogleOAuth } from "@/lib/oauth/google";
 import { useAuthStore } from "@/stores/useAuthStore";
 
